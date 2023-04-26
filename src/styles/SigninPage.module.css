@@ -1,0 +1,24 @@
+.backRojo {
+  background-color: #c32b21;
+  background: #c32b21;
+}
+
+.imagenInline {
+  margin: 0 5px;
+}
+
+/*   .containerInLine {
+    display: inline-flex;
+  }
+ */
+
+.flexContainer {
+  display: inline-flex;
+  justify-content: space-between;
+  border-color: #c32b21;
+  /* background-color: DodgerBlue; */
+}
+
+.divDerecha {
+  justify-content: end;
+}

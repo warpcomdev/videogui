@@ -31,7 +31,7 @@ Este repositorio incluye los ficheros
 - [.dockerignore](.dockerignore)
 - [Dockerfile](Dockerfile)
 
-con la especificación adecuada para poder levantar localmente una instancia de esta WEB App, escuchando en el puerto **3005**.
+con la especificación adecuada para poder levantar localmente una instancia de esta WEB App, escuchando en el puerto **3003**.
 
 Paran lanzar la instancia, se deben ejecutar estos pasos desde el directorio donde se haya clonado el repositorio:
 
@@ -43,9 +43,3 @@ docker-compose build
 docker-compose up
 
 ````
-
-### 📄 License
-
-
-### 💜 Support
-!

@@ -5,9 +5,9 @@ import type { User } from '../../pages/api/user'
 
 function logoutRoute(req: NextApiRequest, res: NextApiResponse<User>) {
   req.session.destroy()
-  res.json({ 
-    isLoggedIn: false, 
-    login: "",
+  res.json({
+    isLoggedIn: false,
+    id: "",
     name: "",
     role: "",
     token: ""

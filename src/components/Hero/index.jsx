@@ -1,19 +1,22 @@
 import React from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
 
 import "../../styles/HomePage.module.css";
 
-const Hero = () => {
-  const OpenStreetMap = dynamic(() => import('../Common/OpenStreetMap2'), {
+/**
+ * Componente central
+ */
+const Hero = ({ data }) => {
+  // Carga el componente con streetmap de forma dinamica
+  const OpenStreetMap = dynamic(() => import("../Map/OpenStreetMap2"), {
     ssr: false,
-  })
+  });
 
   return (
     <>
       <section
         id="home"
-        className="relative z-10 overflow-hidden pt-[120px] pb-16 md:pt-[150px] md:pb-[120px] xl:pt-[180px] xl:pb-[160px] 2xl:pt-[210px] 2xl:pb-[200px]"
+        className="relative z-10 overflow-hidden pb-16 pt-[120px] md:pb-[120px] md:pt-[150px] xl:pb-[160px] xl:pt-[180px] 2xl:pb-[200px] 2xl:pt-[210px]"
       >
         <div className="container">
           <div className="-mx-1 flex flex-wrap">
@@ -22,13 +25,13 @@ const Hero = () => {
                 className="wow fadeInUp mx-auto text-center"
                 data-wow-delay=".2s"
               >
-                  <OpenStreetMap />
+                <OpenStreetMap cameras={data} />
               </div>
             </div>
           </div>
         </div>
         <div className="absolute bottom-0 left-0 z-[-1] opacity-30 lg:opacity-100"></div>
-        <div className="absolute top-0 right-0 z-[-1] opacity-30 lg:opacity-100">
+        <div className="absolute right-0 top-0 z-[-1] opacity-30 lg:opacity-100">
           <svg
             width="450"
             height="556"

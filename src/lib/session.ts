@@ -1,19 +1,39 @@
-// this file is a wrapper with defaults to be used in both API routes and `getServerSideProps` functions
-import type { IronSessionOptions } from 'iron-session'
+import type { IronSessionOptions } from "iron-session";
+import { withIronSessionApiRoute, withIronSessionSsr  } from "iron-session/next";
 import type { User } from '../pages/api/user'
 
+/**
+ * Session Options 
+ * Cookie config
+ */
 export const sessionOptions: IronSessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
-  cookieName: 'videogui-iron-session',
-  // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
+  cookieName: "video-gui-iron-session",
   cookieOptions: {
-    secure: process.env.NODE_ENV === 'production',
-  },
-}
+    secure: process.env.NODE_ENV === "production",
+  }
+};
 
-// This is where we specify the typings of req.session.*
-declare module 'iron-session' {
+// /**
+//  * Session SSR 
+//  */
+// export function withSessionSSR(handler) {
+//   return withIronSessionSsr(handler, sessionOptions)
+// }
+
+// /**
+//  * Session API Route 
+//  */
+// export function withSessionAPI(handler) {
+//   return withIronSessionApiRoute(handler, sessionOptions)
+// }
+
+/**
+ * Session module interface 
+ */
+declare module "iron-session" {
   interface IronSessionData {
-    user?: User
+   // user?: User | null;
+   user?: User ;
   }
 }

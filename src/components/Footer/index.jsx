@@ -59,6 +59,7 @@ const Footer = () => {
                   width={150}
                   height={30}
                   className="dark:hidden"
+                  priority
                 />
                 <Image
                   src="/images/logo/escudo_2016_anch_Bco.svg"
@@ -66,6 +67,7 @@ const Footer = () => {
                   width={150}
                   height={30}
                   className="hidden dark:block"
+                  priority
                 />
               </div>
             </div>

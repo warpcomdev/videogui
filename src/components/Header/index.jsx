@@ -82,7 +82,7 @@ const Header = () => {
             <div className="flex w-full items-center justify-between px-4">
               {/* Header Submenue Start -------> */}
               {/* Si el usuario esta autenticado presenta el menu  */}
-              {user && (
+              {user && user.isLoggedIn === true && (
                 <div>
                   <button
                     onClick={navbarToggleHandler}
@@ -167,7 +167,7 @@ const Header = () => {
                   </nav>
                 </div>
               )}
-              {!user && <div></div>}
+              {!user || (user.isLoggedIn === false && <div></div>)}
               {/* Header Submenue End -------> */}
 
               {/* Header Button Start -------> */}
@@ -176,7 +176,7 @@ const Header = () => {
                   Si el usuario esta autenticado presenta el boton para Cerrar sesión
                   status === "authenticated"
                 */}
-                {user && (
+                {user && user.isLoggedIn === true && (
                   <button
                     // href="/signup"
                     className="ease-in-up hidden rounded-md bg-rojoinstitucional py-3 px-8 text-base 

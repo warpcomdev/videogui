@@ -3,7 +3,7 @@ const menuData = [
   {
     id: 1,
     title: "Inicio",
-    path: "/indexLogged",
+    path: "/",
     newTab: false,
   },
   // {
@@ -30,17 +30,17 @@ const menuData = [
   //   path: "/contact",
   //   newTab: false,
   // },
-  {
-    id: 4,
-    title: "Camaras",
-    newTab: false,
-    submenu: [
-      {
-        id: 21,
-        title: "Cámara 360° - Finca La Cocosa",
-        path: "/camara",
-        newTab: false,
-      },
+  // {
+  //   id: 4,
+  //   title: "Camaras",
+  //   newTab: false,
+  //   submenu: [
+      // {
+      //   id: 21,
+      //   title: "Cámara 360° - Finca La Cocosa",
+      //   path: "/camara",
+      //   newTab: false,
+      // },
       // {
       //   id: 22,
       //   title: "Cámara 360° - Tamurejo",
@@ -101,7 +101,7 @@ const menuData = [
       //   path: "/error",
       //   newTab: false,
       // },
-    ],
-  },
+  //   ],
+  // },
 ];
 export default menuData;

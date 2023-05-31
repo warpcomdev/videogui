@@ -42,6 +42,10 @@ RUN yarn install --production --frozen-lockfile --ignore-scripts --prefer-offlin
 FROM node:20-alpine
 
 ENV NODE_ENV production
+ENV NEXT_PUBLIC_VIDEOAPI_URL='http://localhost:8080'
+ENV NEXTAUTH_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
+ENV JWT_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
+ENV SECRET_COOKIE_PASSWORD='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001

@@ -1,28 +1,23 @@
-/*
-  Pagina  Home
-*/
 import { Inter } from "@next/font/google";
 import Head from "next/head";
 import useUser from '../lib/useUser'
-import useEvents from '../lib/useEvents'
+import Signin from "../components/Login";
 
 // import Signin from "./signin";
 
 const inter = Inter({ subsets: ["latin"] });
 
+/**
+ * Página index 
+ * login si el usuario no esta en sesión (Signin component)
+ * en caso de que ya este en sessión se redirecciona a dashboard
+ */
 export default function Home() {
-  // verifica si el usuario ya esta en sessión y lo envia ala página dashboard
   // const { user } = useUser({
   //   redirectTo: '/dashboard',
+  //   redirectIfFound: true
   // })
 
-  const { user } = useUser({
-    redirectTo: '/login',
-    redirectIfFound: false
-  })
-  const { events } = useEvents(user)
-
-  console.log(user)
   return (
     <>
       <Head>
@@ -32,7 +27,7 @@ export default function Home() {
           content="Sistema de transmisión de eventos astronómicos de la Diputación de Badajoz"
         />
       </Head>
-      {/* <Signin /> */}
+      <Signin />
     </>
   );
 }

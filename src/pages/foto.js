@@ -1,16 +1,52 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { withIronSessionSsr } from "iron-session/next";
+import { useSearchParams } from "next/navigation";
 
 import Breadcrumb from "../components/Common/Breadcrumb";
 
-const FotoPage = () => {
+async function getData(token, id, pictureId) {
+  try {
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
+    + `/api/picture/${id}`;
+    const res = await fetchJson(urlData, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    // handle errors
+    if (!res || res.error) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
+
+    return res;
+  } catch (error) {
+    throw new Error("Ocurrio un error al extraer los datos");
+  }
+}
+
+const FotoPage = ({picture}) => {
+  const searchParams = useSearchParams();
+
+  const camera = {
+    id: searchParams.get("cameraId"),
+    name: searchParams.get("cameraId"),
+    pictureId: searchParams.get("pictureId"),
+  };
+
+  const cameraName = `${camera.id} - ${camera.name}`;
+
+  console.log(picture)
+
   return (
     <>
-      <Breadcrumb
-        pageName="Última foto Cámara 360° - Finca La Cocosa"
-        description=""
-      />
+      <Breadcrumb pageName={cameraName} description="" />
 
       <div className="container">
         <div className="border-b border-body-color/[.15] pb-16 dark:border-white/[.15] md:pb-20 lg:pb-28">
@@ -24,17 +60,17 @@ const FotoPage = () => {
                 height={25}
                 className="w-full"
               /> */}
-              <Image
+              {/* <Image
                 alt="nature"
                 className="h-[48rem] w-full object-cover object-center"
                 src="/images/video/pexels-pixabay-2150.jpg"
-              />
+              /> */}
             </div>
           </div>
           <br></br>
 
-         <div
-                className="
+          <div
+            className="
                       mx-auto
                       mt-8
                       grid
@@ -43,18 +79,18 @@ const FotoPage = () => {
                       sm:max-w-xl sm:grid-cols-1 sm:gap-x-1
                       lg:mx-8
                       lg:max-w-none lg:grid-cols-4"
-              > 
-          {/* <div className="-mx-2 flex flex-wrap items-right">
+          >
+            {/* <div className="-mx-2 flex flex-wrap items-right">
             <div className="w-full px-6 lg:max-w-none items-end"> */}
             <div className="ocultar-div"></div>
             <div className="ocultar-div"></div>
             <div className="ocultar-div"></div>
-              <Link
-                href="/camara"
-                className="text-center rounded-md bg-rojoinstitucional py-3 px-8 text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
-              >
-                Volver a camara
-              </Link>
+            <Link
+              href="/camara"
+              className="rounded-md bg-rojoinstitucional px-8 py-3 text-center text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
+            >
+              Volver a camara
+            </Link>
             {/* </div> */}
           </div>
         </div>
@@ -64,3 +100,28 @@ const FotoPage = () => {
 };
 
 export default FotoPage;
+
+/**
+ * Busca los datos en el servidor
+ */
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req, query }) {
+    const user = req.session.user ?? null;
+    const { cameraId, pictureId } = query;
+    if (user && user.isLoggedIn) {
+      var data = await getData(user.token, cameraId, pictureId);
+      return {
+        props: {
+          picture: data,
+        },
+      };
+    } else {
+      return {
+        props: {
+          picture: null,
+        },
+      };
+    }
+  },
+  sessionOptions
+);

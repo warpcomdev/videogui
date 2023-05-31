@@ -1,17 +1,19 @@
 import { AppProps } from "next/app";
+import { SWRConfig } from "swr";
+
 import Header from "../components/Header";
-import "../styles/globals.css"; // Global CSS
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 import { Providers } from "../components/Common/providers";
-
-// import "node_modules/react-modal-video/css/modal-video.css";
-// import { SessionProvider} from "next-auth/react";
-
-// import { AppProps } from 'next/app'
-import { SWRConfig } from "swr";
 import fetchJson from "../lib/fetchJson";
 
+import "../styles/globals.css"; // Global CSS
+
+/**
+ * App config
+ * Configuracion SWR para  iron-session
+ * Providers modificado para temas
+ */
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>

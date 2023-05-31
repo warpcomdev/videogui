@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
-import "@/src/styles/HomePage.module.css";
+import "../styles/HomePage.module.css";
 
 const HeroLogged = () => {
   const OpenStreetMap = dynamic(() => import('../Common/OpenStreetMap2'), {

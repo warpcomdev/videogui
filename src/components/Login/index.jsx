@@ -1,61 +1,106 @@
 /*  ************************************
   Login with iron-session
-  */
-import useUser from "../../lib/useUser";
-import fetchJson, { FetchError } from "../../lib/fetchJson";
+  ************************************** */
 import Image from "next/image";
 import { useState } from "react";
+import useSWR from "swr";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { stringify } from "postcss";
+
+import useUser from "../../lib/useUser";
+import login from "../../pages/api/login";
+import fetchJson, { FetchError } from "../../lib/fetchJson";
 
 const Signin = () => {
-  // Si el usuario ya esta en sessión redirecciona al dashboard
-  const { mutateUser } = useUser({
-    redirectTo: "/camara2",
-    redirectIfFound: true,
+  const { mutateUser } = useUser();
+  // const { mutateUser } = useUser({
+  //   redirectTo: "/Dashboard",
+  //   redirectIfFound: true,
+  // });
+  const router = useRouter();
+
+  // Form
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm({
+    criteriaMode: "all",
   });
 
   // mensaje error
-  const [errorMsg, setErrorMsg] = useState("");
+  const [botonSubmit, setBotonSubmit] = useState(false);
 
-  // credenciales
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-
-  // evento acceder
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    const body = {
-      id: username,
-      password: password,
-    };
+  // evento submit
+  const onSubmit = (data) => {
 
     // ruta api login
-    const urlLogin = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/api/login";
+    // const urlLogin = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/api/login";
+    const urlLogin = "/api/login";
 
     // login
     try {
-      mutateUser(
-        await fetchJson(urlLogin, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+      const body = {
+        id: data.username,
+        password: data.password,
+      };
+
+      fetchJson(urlLogin, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+        .then((res) => {
+          if (res.error || res.isLoggedIn !== true) {
+            setError("root.random", {
+              type: "random",
+              message:
+                "No tiene acceso, verifique el usuario y contraseña e intente nuevamente",
+            });
+          } else {
+            // mutateUser(res);
+            router.push({ pathname: "/dashboard" });
+          }
         })
-      );
+        .catch((error) => {
+          if (error?.response && error.response.status === 401) {
+            setError("root.random", {
+              type: "random",
+              message:
+                "No tiene acceso, verifique el usuario y/o contraseña e intente nuevamente",
+            });
+          } else {
+            setError("root.random", {
+              type: "random",
+              message: "Ocurrio un error, Intente nuevamente",
+            });
+          }
+        });
     } catch (error) {
       if (error instanceof FetchError) {
-        setErrorMsg(error.data.message);
+        setError("root.random", {
+          type: "random",
+          message: "error.data.message",
+        });
       } else {
-        console.error("An unexpected error happened:", error);
+        setError("root.random", {
+          type: "random",
+          message: "Ocurrio un error, Intente nuevamente",
+        });
       }
     }
   };
 
   return (
     <>
-      <section className="relative z-10 overflow-hidden pt-36 pb-16 md:pb-20 lg:pt-[180px] lg:pb-28">
+      <section className="relative z-10 overflow-hidden pb-16 pt-36 md:pb-20 lg:pb-28 lg:pt-[180px]">
         <div className="container">
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
-              <div className="mx-auto max-w-[500px] rounded-md bg-primary bg-opacity-5 py-10 px-6 dark:bg-dark sm:p-[60px]">
+              <div className="mx-auto max-w-[500px] rounded-md bg-primary bg-opacity-5 px-6 py-10 dark:bg-dark sm:p-[60px]">
                 {/* Titulo inicio sesión y Logo Diputación Badajoz*/}
                 <div
                   className="borderBottomRojo
@@ -94,23 +139,26 @@ const Signin = () => {
                 </div>
 
                 {/* Mensaje de error */}
-                {/* <br></br>
-                <label
-                  name="errorMessage"
-                  className="text-red mb-3 block bg-yellow text-sm font-medium text-dark dark:text-white"
-                >
-                  {errorMsg}
-                </label> */}
+
+                <ErrorMessage
+                  errors={errors}
+                  name="root.random"
+                  render={({ message }) => (
+                    <p
+                      className="text-red mb-3 block 
+                    bg-yellow text-center text-sm font-medium text-dark dark:text-white"
+                    >
+                      {" "}
+                      <br />
+                      {message}
+                      <br />
+                      <br />
+                    </p>
+                  )}
+                />
 
                 {/* Form login */}
-                <form onSubmit={onSubmitHandler}>
-                  {/* Mensaje de error */}
-                  {errorMsg && (
-                    <div>
-                      <br />
-                      <p className="error">{errorMsg}</p>
-                    </div>
-                  )}
+                <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="mb-8">
                     <label
                       htmlFor="UserName"
@@ -122,10 +170,11 @@ const Signin = () => {
                       id="username"
                       name="username"
                       placeholder="Escriba su usuario"
-                      className="outline-none w-full rounded-md border border-transparent py-3 px-6 text-base text-body-color placeholder-body-color shadow-one focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
-                      onChange={(e) => setUsername(e.target.value)}
-                      value={username}
-                      required="true"
+                      className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
+                      {...register("username")}
+                      // onChange={(e) => setUsername(e.target.value)}
+                      // value={username}
+                      required={true}
                     />
                   </div>
                   <div className="mb-8">
@@ -140,26 +189,27 @@ const Signin = () => {
                       id="password"
                       name="password"
                       placeholder="Escriba su contraseña"
-                      className="outline-none w-full rounded-md border border-transparent py-3 px-6 text-base text-body-color placeholder-body-color shadow-one focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
+                      className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp"
+                      {...register("password")}
                       // onChange={handleChange}
-                      onChange={(e) => setPassword(e.target.value)}
-                      value={password}
-                      required="true"
+                      // onChange={(e) => setPassword(e.target.value)}
+                      // value={password}
+                      required={true}
                     />
                   </div>
                   <div className="mb-6">
                     <button
                       type="submit"
                       className="flex w-full items-center justify-center
-                    rounded-md bg-rojoinstitucional py-4 px-9 text-base font-medium
+                    rounded-md bg-rojoinstitucional px-9 py-4 text-base font-medium
                     text-white transition duration-300 ease-in-out hover:bg-opacity-80
                     hover:shadow-signUp"
+                      disabled={botonSubmit}
                     >
                       Acceder
                     </button>
                   </div>
                 </form>
-
                 {/* texto EUR italic*/}
                 <p className="text-center text-base font-medium text-body-color">
                   Fondo Europeo de Desarrollo Regional
@@ -212,6 +262,7 @@ const Signin = () => {
                     width={100}
                     height={10}
                     className="col-span-2 dark:hidden"
+                    priority
                   />
                   <Image
                     src="/images/logo/escudo_2016_anch_Bco.svg"
@@ -219,6 +270,7 @@ const Signin = () => {
                     width={100}
                     height={10}
                     className="col-span-2 hidden dark:block"
+                    priority
                   />
 
                   {/* logo Unión Europea */}

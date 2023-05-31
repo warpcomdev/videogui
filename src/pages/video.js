@@ -1,10 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-// import ReactDOM from "react-dom";
-import ModalVideo from "react-modal-video";
 import { useState } from "react";
-// import 'node_modules/react-modal-video/scss/modal-video.css';
 
 import Breadcrumb from "../components/Common/Breadcrumb";
 
@@ -100,7 +97,7 @@ const VideoPage = () => {
           </div>
         </div>
       </div>
-      <ModalVideo
+      {/* <ModalVideo
         channel="youtube"
         autoplay={true}
         start={true}
@@ -110,7 +107,7 @@ const VideoPage = () => {
       />
       <div className="absolute bottom-0 left-0 right-0 z-[-1]">
         <Image src="/images/video/shape.svg" alt="shape" className="w-full" />
-      </div>
+      </div> */}
     </>
   );
 

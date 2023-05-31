@@ -17,16 +17,3 @@ export type Camera = {
   longitude: Number;
   local_path: string;
 };
-
-// async function userRoute(req: NextApiRequest, res: NextApiResponse<User>) {
-//   if (req.session.user) {
-//     res.json({
-//       ...req.session.user,
-//       isLoggedIn: true,
-//     });
-//   } else {
-//     res.json(NullUser);
-//   }
-// }
-
-// export default withIronSessionApiRoute(userRoute, sessionOptions);

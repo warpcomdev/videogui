@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { withIronSessionSsr } from "iron-session/next";
 import { useSearchParams } from "next/navigation";
+import { sessionOptions } from "../lib/session";
 
 import Breadcrumb from "../components/Common/Breadcrumb";
 

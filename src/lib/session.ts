@@ -14,20 +14,6 @@ export const sessionOptions: IronSessionOptions = {
   }
 };
 
-// /**
-//  * Session SSR 
-//  */
-// export function withSessionSSR(handler) {
-//   return withIronSessionSsr(handler, sessionOptions)
-// }
-
-// /**
-//  * Session API Route 
-//  */
-// export function withSessionAPI(handler) {
-//   return withIronSessionApiRoute(handler, sessionOptions)
-// }
-
 /**
  * Session module interface 
  */

@@ -1,27 +1,12 @@
-/*  ************************************
-  Login with iron-session
-  ************************************** */
 import Image from "next/image";
 import { useState } from "react";
-import useSWR from "swr";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
-import { stringify } from "postcss";
-
-import useUser from "../../lib/useUser";
-import login from "../../pages/api/login";
-import fetchJson, { FetchError } from "../../lib/fetchJson";
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from "next/router";
 
 const Signin = () => {
-  const { mutateUser } = useUser();
-  // const { mutateUser } = useUser({
-  //   redirectTo: "/Dashboard",
-  //   redirectIfFound: true,
-  // });
   const router = useRouter();
-
-  // Form
   const {
     register,
     handleSubmit,
@@ -35,62 +20,20 @@ const Signin = () => {
   const [botonSubmit, setBotonSubmit] = useState(false);
 
   // evento submit
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    // Sign in 
+    const result = await signIn('credentials', { 
+      redirect: true,
+      callbackUrl: "/dashboard",
+      id: data.username, 
+      password: data.password 
+    });
 
-    // ruta api login
-    // const urlLogin = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/api/login";
-    const urlLogin = "/api/login";
-
-    // login
-    try {
-      const body = {
-        id: data.username,
-        password: data.password,
-      };
-
-      fetchJson(urlLogin, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-        .then((res) => {
-          if (res.error || res.isLoggedIn !== true) {
-            setError("root.random", {
-              type: "random",
-              message:
-                "No tiene acceso, verifique el usuario y contraseña e intente nuevamente",
-            });
-          } else {
-            // mutateUser(res);
-            router.push({ pathname: "/dashboard" });
-          }
-        })
-        .catch((error) => {
-          if (error?.response && error.response.status === 401) {
-            setError("root.random", {
-              type: "random",
-              message:
-                "No tiene acceso, verifique el usuario y/o contraseña e intente nuevamente",
-            });
-          } else {
-            setError("root.random", {
-              type: "random",
-              message: "Ocurrio un error, Intente nuevamente",
-            });
-          }
-        });
-    } catch (error) {
-      if (error instanceof FetchError) {
-        setError("root.random", {
-          type: "random",
-          message: "error.data.message",
-        });
-      } else {
-        setError("root.random", {
-          type: "random",
-          message: "Ocurrio un error, Intente nuevamente",
-        });
-      }
+    if(result.error){
+      setError("root.random", {
+        type: "random",
+        message: result.error,
+      });
     }
   };
 

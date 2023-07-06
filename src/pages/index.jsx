@@ -1,17 +1,44 @@
-/*
-  Pagina  principal
-*/
-import { withIronSessionSsr } from "iron-session/next";
+
 import { Inter } from "@next/font/google";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import Hero from "../components/Hero/index";
-import useUser from "../lib/useUser";
-import { sessionOptions } from "../lib/session";
 import fetchJson from "../lib/fetchJson";
 
+import { useSession, getSession, signOut } from "next-auth/react"
+
 const inter = Inter({ subsets: ["latin"] });
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (!session) {
+      return {
+          redirect: {
+              destination: '/login',
+              permanent: false,
+          },
+      }
+  }
+  var data = await getData(session.user.token);
+  console.log(data);
+  if (data) {
+      return {
+          props: {
+              session,
+              cameras: data
+          },
+      }
+  } else {
+      return {
+          props: {
+              session,
+              cameras: null
+          },
+      }
+  }
+
+}
 
 /**
  * Función para obtener los datos de las cámaras
@@ -36,6 +63,7 @@ async function getData(token) {
 
     return res;
   } catch (error) {
+    console.error('ERROR', error);
     throw new Error("Ocurrio un error al extraer los datos");
   }
 }
@@ -44,11 +72,6 @@ async function getData(token) {
  * Página principal
  */
 function Dashboard({ cameras }) {
-    // Si el usuario no esta en sessión redirecciona al login
-    // const { user } = useUser({
-    //   redirectTo: '/'
-    // })
-
   return (
     <>
       <Head>
@@ -64,28 +87,3 @@ function Dashboard({ cameras }) {
 }
 
 export default Dashboard;
-
-/**
- * Busca los datos en el servidor
- */
-export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    const user = req.session.user ?? null;
-
-    if (user && user.isLoggedIn) {
-      var data = await getData(user.token);
-      return {
-        props: {
-          cameras: data
-        },
-      };
-    } else {
-      return {
-        props: {
-          cameras: null
-        },
-      };
-    }
-  },
-  sessionOptions
-);

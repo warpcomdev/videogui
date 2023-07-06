@@ -8,15 +8,52 @@ import { sessionOptions } from "../lib/session";
 import fetchJson from "../lib/fetchJson";
 import useUser from "../lib/useUser";
 import Breadcrumb from "../components/Common/Breadcrumb";
+import { useSession, getSession, signOut } from "next-auth/react"
 
 import "../styles/Camara.module.css";
 import { Button } from "@material-tailwind/react";
+
+
+export async function getServerSideProps(context) {
+  const { id } = context.query;
+  const session = await getSession(context);
+  if (!session) {
+      return {
+          redirect: {
+              destination: '/login',
+              permanent: false,
+          },
+      }
+  }
+  var data = await getData(session.user.token, id);
+  var pictureData = await getPictureData(session.user.token, id);
+  console.log('PICTURE', pictureData);
+  if (data) {
+    return {
+      props: {
+        session,
+        camera: data,
+        picture: pictureData['data'],
+      }
+    };
+  } else {
+    return {
+      props: {
+        session,
+        camera: null,
+        picture: null
+      },
+    };
+  }
+
+}
 
 /**
  * Función para obtener los datos de las cámaras
  */
 async function getData(token, id) {
   try {
+    console.log('ID', id);
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/api/camera/${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
@@ -35,6 +72,7 @@ async function getData(token, id) {
 
     return res;
   } catch (error) {
+    console.error('ERROR CAMERA', error);
     throw new Error("Ocurrio un error al extraer los datos");
   }
 }
@@ -63,6 +101,7 @@ async function getPictureData(token, id) {
 
     return res;
   } catch (error) {
+    console.error('ERROR CAMERA', error);
     throw new Error("Ocurrio un error al extraer los datos");
   }
 }
@@ -94,6 +133,79 @@ const CamaraPage = ({ camera, picture }) => {
       <div className="container">
         <div className="border-b border-body-color/[.15] pb-16 dark:border-white/[.15] md:pb-20 lg:pb-28">
           <div className="-mx-2 flex flex-wrap items-center">
+            
+            {/* Búsqueda End --->*/}
+
+            <div
+              className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none "
+              data-wow-delay=".15s"
+            >
+              <div
+                className="leaflet-container[40.505,
+                  -100.09]
+                  mx-auto
+                  mt-8
+                  grid
+                  max-w-lg grid-cols-2
+                  items-center gap-x-1 gap-y-10
+                  sm:max-w-xl sm:grid-cols-1 sm:gap-x-1
+                  lg:mx-0
+                  lg:max-w-none lg:grid-cols-2"
+              >
+                {/* Mapa camara Start --->*/}
+                <div>
+                  <OpenStreetMap camera={camera} />
+                </div>
+                {/* Mapa camara End --->*/}
+
+                {/* Detalle camara Start --->*/}
+                <div mb-5>
+                  <form>
+                    <div className="mb-3">
+                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
+                        Id
+                      </label>
+                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
+                        {camera.id}
+                      </label>
+                    </div>
+                    <div className="mb-3">
+                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
+                        Nombre
+                      </label>
+                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
+                        {camera.name}
+                      </label>
+                    </div>
+                    <div className="mb-3">
+                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
+                        Fecha de creación
+                      </label>
+                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
+                        {camera.created_at}
+                      </label>
+                    </div>
+                    <div className="mb-3">
+                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
+                        Fecha de actualización
+                      </label>
+                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
+                        {camera.created_at}
+                      </label>
+                    </div>
+                    <div className="mb-6">
+                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
+                        Ruta local
+                      </label>
+                      <label className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
+                        {camera.local_path}
+                      </label>
+                    </div>
+                  </form>
+                </div>
+                {/* Detalle camara End --->*/}
+              </div>
+            </div>
             <div className="w-full px-6 lg:max-w-none">
               {/* botones acceso último video - foto Start --->*/}
               <div
@@ -202,95 +314,6 @@ const CamaraPage = ({ camera, picture }) => {
                 </div>
               </div>
             </div>
-            {/* Búsqueda End --->*/}
-
-            <div
-              className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none "
-              data-wow-delay=".15s"
-            >
-              <div
-                className="leaflet-container[40.505,
-                  -100.09]
-                  mx-auto
-                  mt-8
-                  grid
-                  max-w-lg grid-cols-2
-                  items-center gap-x-1 gap-y-10
-                  sm:max-w-xl sm:grid-cols-1 sm:gap-x-1
-                  lg:mx-0
-                  lg:max-w-none lg:grid-cols-2"
-              >
-                {/* Mapa camara Start --->*/}
-                <div>
-                  <OpenStreetMap camera={camera} />
-                </div>
-                {/* Mapa camara End --->*/}
-
-                {/* Detalle camara Start --->*/}
-                <div mb-5>
-                  <h1>Información</h1>
-                  <form>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Identificador
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.id}
-                      </label>
-                    </div>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Nombre
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.name}
-                      </label>
-                    </div>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Fecha de creación
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
-                      </label>
-                    </div>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Fecha de actualización
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
-                      </label>
-                    </div>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Latitud
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.latitude}
-                      </label>
-                    </div>
-                    <div className="mb-3">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Longitud
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.longitude}
-                      </label>
-                    </div>
-                    <div className="mb-6">
-                      <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
-                        Ruta local
-                      </label>
-                      <label className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.local_path}
-                      </label>
-                    </div>
-                  </form>
-                </div>
-                {/* Detalle camara End --->*/}
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -299,31 +322,3 @@ const CamaraPage = ({ camera, picture }) => {
 };
 
 export default CamaraPage;
-
-/**
- * Busca los datos en el servidor
- */
-export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req, query }) {
-    const user = req.session.user ?? null;
-    const { id } = query;
-    if (user && user.isLoggedIn) {
-      var data = await getData(user.token, id);
-      var pictureData = await getPictureData(user.token, id);
-      return {
-        props: {
-          camera: data,
-          picture: pictureData,
-        },
-      };
-    } else {
-      return {
-        props: {
-          camera: null,
-          picture: null
-        },
-      };
-    }
-  },
-  sessionOptions
-);

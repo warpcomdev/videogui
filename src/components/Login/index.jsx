@@ -3,10 +3,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from "next/router";
 
 const Signin = () => {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -24,12 +22,12 @@ const Signin = () => {
     // Sign in 
     const result = await signIn('credentials', { 
       redirect: true,
-      callbackUrl: "/dashboard",
+      callbackUrl: "/",
       id: data.username, 
       password: data.password 
     });
 
-    if(result.error){
+    if(result?.error){
       setError("root.random", {
         type: "random",
         message: result.error,

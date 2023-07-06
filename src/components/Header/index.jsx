@@ -2,15 +2,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/router'
-
 import ThemeToggler from "./ThemeToggler";
-import menuData from "./menuData";
-import useUser from "../../lib/useUser";
+import { signOut, useSession } from "next-auth/react"
 
 const Header = () => {
-  const { user, mutateUser } = useUser()
-  const router = useRouter()
+  const { data: session } = useSession()
 
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
@@ -40,6 +36,43 @@ const Header = () => {
       setOpenIndex(index);
     }
   };
+  
+  let cameras = null;
+  if(session){
+    cameras = session.user.cameras['data']
+  }
+
+  const menuData = [
+    {
+      id: 1,
+      title: "Inicio",
+      path: "/",
+      newTab: false,
+    },
+    {
+      id: 2,
+      title: "Camaras",
+      newTab: false,
+      submenu: cameras?.map((camera, index) => ({
+        id: index + 20,
+        title: camera.name,
+        path: `/camera?id=${camera.id}`,
+        newTab: false,
+      })) || []
+    },
+     {
+      id: 3,
+      title: "Alertas",
+      path: "/alert",
+      newTab: false,
+    },
+    {
+      id: 4,
+      title: "Configuracion",
+      path: "/config",
+      newTab: false,
+    },
+  ];
 
   return (
     <>
@@ -82,7 +115,7 @@ const Header = () => {
             <div className="flex w-full items-center justify-between px-4">
               {/* Header Submenue Start -------> */}
               {/* Si el usuario esta autenticado presenta el menu  */}
-              {user && user.isLoggedIn === true && (
+              {session && (
                 <div>
                   <button
                     onClick={navbarToggleHandler}
@@ -167,7 +200,7 @@ const Header = () => {
                   </nav>
                 </div>
               )}
-              {!user || (user.isLoggedIn === false && <div></div>)}
+              {!session && (<div></div>)}
               {/* Header Submenue End -------> */}
 
               {/* Header Button Start -------> */}
@@ -176,20 +209,12 @@ const Header = () => {
                   Si el usuario esta autenticado presenta el boton para Cerrar sesión
                   status === "authenticated"
                 */}
-                {user && user.isLoggedIn === true && (
+                {session && (
                   <button
-                    // href="/signup"
                     className="ease-in-up hidden rounded-md bg-rojoinstitucional py-3 px-8 text-base 
                     font-bold text-white transition duration-300 hover:bg-opacity-90 hover:shadow-signUp 
                     md:block md:px-9 lg:px-6 xl:px-9"
-                    onClick={async (e) => {
-                      e.preventDefault()
-                      mutateUser(
-                        await fetchJson('/api/logout', { method: 'POST' }),
-                        false
-                      )
-                      router.push('/')
-                    }}
+                    onClick={() => signOut()}
                   >
                     Cerrar sesión
                   </button>

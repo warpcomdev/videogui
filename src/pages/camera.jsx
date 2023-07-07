@@ -2,7 +2,6 @@ import React from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import fetchJson from "../lib/fetchJson";
-import useUser from "../lib/useUser";
 import Breadcrumb from "../components/Common/Breadcrumb";
 import { getSession } from "next-auth/react"
 
@@ -135,14 +134,7 @@ async function getVideoData(token, id) {
  * Página Camara
  */
 const CamaraPage = ({ camera, picture, video }) => {
-  // Si el usuario no esta en sessión redirecciona al login
-  const { user } = useUser({
-    redirectTo: "/",
-  });
-
   const nombreCamara = `${camera.id} - ${camera.name}`;
-
-  console.log('CAMARA - PICTURE', picture);
 
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),

@@ -1,13 +1,43 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { withIronSessionSsr } from "iron-session/next";
 import { useSearchParams } from "next/navigation";
-import { sessionOptions } from "../lib/session";
-
 import Breadcrumb from "../components/Common/Breadcrumb";
+import { getSession } from "next-auth/react"
+import fetchJson from "../lib/fetchJson";
 
-async function getData(token, id, pictureId) {
+
+export async function getServerSideProps(context) {
+  const { cameraId, pictureId } = context.query;
+  const session = await getSession(context);
+  if (!session) {
+      return {
+          redirect: {
+              destination: '/login',
+              permanent: false,
+          },
+      }
+  }
+  var data = await getData(session.user.token, pictureId);
+  if (data) {
+    return {
+      props: {
+        session,
+        picture: data,
+      }
+    };
+  } else {
+    return {
+      props: {
+        session,
+        picture: null
+      },
+    };
+  }
+
+}
+
+async function getData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
     + `/api/picture/${id}`;
@@ -28,6 +58,7 @@ async function getData(token, id, pictureId) {
 
     return res;
   } catch (error) {
+    console.error('ERROR FOTO', error);
     throw new Error("Ocurrio un error al extraer los datos");
   }
 }
@@ -43,7 +74,7 @@ const FotoPage = ({picture}) => {
 
   const cameraName = `${camera.id} - ${camera.name}`;
 
-  console.log(picture)
+  console.log(picture);
 
   return (
     <>
@@ -54,18 +85,14 @@ const FotoPage = ({picture}) => {
           <div className="-mx-2 flex flex-wrap items-center">
             <div className="w-full px-6 lg:max-w-none">
               {/* Foto Start --->*/}
-              {/* <Image
-                src="/images/video/pexels-pixabay-2150.jpg"
-                alt="foto"
+              <Image
+                src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/media/${picture.media_url}`}
+                alt={`${picture.id}`}
                 width={100}
                 height={25}
                 className="w-full"
-              /> */}
-              {/* <Image
-                alt="nature"
-                className="h-[48rem] w-full object-cover object-center"
-                src="/images/video/pexels-pixabay-2150.jpg"
-              /> */}
+                unoptimized={true}
+              />
             </div>
           </div>
           <br></br>
@@ -87,7 +114,7 @@ const FotoPage = ({picture}) => {
             <div className="ocultar-div"></div>
             <div className="ocultar-div"></div>
             <Link
-              href="/camara"
+              href={`/camera?id=${camera.id}`}
               className="rounded-md bg-rojoinstitucional px-8 py-3 text-center text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
             >
               Volver a camara
@@ -101,28 +128,3 @@ const FotoPage = ({picture}) => {
 };
 
 export default FotoPage;
-
-/**
- * Busca los datos en el servidor
- */
-export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req, query }) {
-    const user = req.session.user ?? null;
-    const { cameraId, pictureId } = query;
-    if (user && user.isLoggedIn) {
-      var data = await getData(user.token, cameraId, pictureId);
-      return {
-        props: {
-          picture: data,
-        },
-      };
-    } else {
-      return {
-        props: {
-          picture: null,
-        },
-      };
-    }
-  },
-  sessionOptions
-);

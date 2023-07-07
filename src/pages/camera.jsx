@@ -1,14 +1,10 @@
 import React from "react";
-import { withIronSessionSsr } from "iron-session/next";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { sessionOptions } from "../lib/session";
 import fetchJson from "../lib/fetchJson";
 import useUser from "../lib/useUser";
 import Breadcrumb from "../components/Common/Breadcrumb";
-import { useSession, getSession, signOut } from "next-auth/react"
+import { getSession } from "next-auth/react"
 
 import "../styles/Camara.module.css";
 import { Button } from "@material-tailwind/react";

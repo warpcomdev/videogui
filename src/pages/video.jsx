@@ -2,11 +2,69 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-
+import { getSession } from "next-auth/react"
+import fetchJson from "../lib/fetchJson";
 import Breadcrumb from "../components/Common/Breadcrumb";
 
-const VideoPage = () => {
+export async function getServerSideProps(context) {
+  const { cameraId, videoId } = context.query;
+  const session = await getSession(context);
+  if (!session) {
+      return {
+          redirect: {
+              destination: '/login',
+              permanent: false,
+          },
+      }
+  }
+  var data = await getData(session.user.token, videoId);
+  if (data) {
+    return {
+      props: {
+        session,
+        video: data,
+      }
+    };
+  } else {
+    return {
+      props: {
+        session,
+        video: null
+      },
+    };
+  }
+
+}
+
+async function getData(token, id) {
+  try {
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
+    + `/api/video/${id}`;
+    const res = await fetchJson(urlData, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    // handle errors
+    if (!res || res.error) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
+
+    return res;
+  } catch (error) {
+    console.error('ERROR VIDEO', error);
+    throw new Error("Ocurrio un error al extraer los datos");
+  }
+}
+
+const VideoPage = ({video}) => {
   const [isOpen, setOpen] = useState(false);
+  console.log('VIDEO', video);
 
   return (
     <>
@@ -52,7 +110,7 @@ const VideoPage = () => {
                   class="border-gray-200 dark:border-gray-700 h-auto w-full max-w-5xl rounded-lg border"
                   controls
                 >
-                  <source src="/images/video/video1.mp4" type="video/mp4" />
+                  <source src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/media/${video.media_url}`} type="video/mp4" />
                     su navegador no soporte el TAG de video.
                 </video>
 

@@ -27,13 +27,14 @@ export async function getServerSideProps(context) {
   }
   var data = await getData(session.user.token, id);
   var pictureData = await getPictureData(session.user.token, id);
-  console.log('PICTURE', pictureData);
-  if (data) {
+  var videoData = await getVideoData(session.user.token, id);
+  if (data && pictureData && videoData) {
     return {
       props: {
         session,
         camera: data,
-        picture: pictureData['data'],
+        picture: pictureData['data'][0],
+        video: videoData['data'][0],
       }
     };
   } else {
@@ -41,7 +42,8 @@ export async function getServerSideProps(context) {
       props: {
         session,
         camera: null,
-        picture: null
+        picture: null,
+        video: null
       },
     };
   }
@@ -106,10 +108,36 @@ async function getPictureData(token, id) {
   }
 }
 
+async function getVideoData(token, id) {
+  try {
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
+    + `/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+    const res = await fetchJson(urlData, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+
+    // handle errors
+    if (!res || res.error) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
+
+    return res;
+  } catch (error) {
+    console.error('ERROR CAMERA', error);
+    throw new Error("Ocurrio un error al extraer los datos");
+  }
+}
+
 /**
  * Página Camara
  */
-const CamaraPage = ({ camera, picture }) => {
+const CamaraPage = ({ camera, picture, video }) => {
   // Si el usuario no esta en sessión redirecciona al login
   const { user } = useUser({
     redirectTo: "/",
@@ -117,7 +145,7 @@ const CamaraPage = ({ camera, picture }) => {
 
   const nombreCamara = `${camera.id} - ${camera.name}`;
 
-  console.log(picture);
+  console.log('CAMARA - PICTURE', picture);
 
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
@@ -227,7 +255,14 @@ const CamaraPage = ({ camera, picture }) => {
                     className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
                     text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
-                    href="/video"
+                    href={{
+                      pathname: '/video',
+                      query: {
+                        cameraId: camera.id,
+                        cameraName: camera.name,
+                        videoId: video.id
+                      }
+                    }}
                   >
                     Accede al último video
                   </Link>
@@ -239,7 +274,7 @@ const CamaraPage = ({ camera, picture }) => {
                   rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium text-white
                   transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
                   href={{
-                    pathname: '/foto',
+                    pathname: '/photo',
                     query: {
                       cameraId: camera.id,
                       cameraName: camera.name,

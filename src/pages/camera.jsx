@@ -18,23 +18,24 @@ export async function getServerSideProps(context) {
   const { id } = context.query;
   const session = await getSession(context);
   if (!session) {
-      return {
-          redirect: {
-              destination: '/login',
-              permanent: false,
-          },
-      }
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
   }
   var data = await getData(session.user.token, id);
   var pictureData = await getPictureData(session.user.token, id);
   var videoData = await getVideoData(session.user.token, id);
+  console.error('ERROR VIDEO DATA', videoData);
   if (data && pictureData && videoData) {
     return {
       props: {
         session,
         camera: data,
         picture: pictureData['data'][0],
-        video: videoData['data'][0],
+        video: videoData && videoData['data'] && videoData['data'].length > 0 ? videoData['data'][0] : null,
       }
     };
   } else {
@@ -84,8 +85,8 @@ async function getData(token, id) {
  */
 async function getPictureData(token, id) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
-    + `/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
+      + `/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -110,8 +111,8 @@ async function getPictureData(token, id) {
 
 async function getVideoData(token, id) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
-    + `/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
+      + `/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -129,7 +130,7 @@ async function getVideoData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR CAMERA', error);
+    console.error('ERROR VIDEO DATA', error);
     throw new Error("Ocurrio un error al extraer los datos");
   }
 }
@@ -161,7 +162,7 @@ const CamaraPage = ({ camera, picture, video }) => {
       <div className="container">
         <div className="border-b border-body-color/[.15] pb-16 dark:border-white/[.15] md:pb-20 lg:pb-28">
           <div className="-mx-2 flex flex-wrap items-center">
-            
+
             {/* Búsqueda End --->*/}
 
             <div
@@ -251,21 +252,32 @@ const CamaraPage = ({ camera, picture, video }) => {
               >
                 <div className="ocultar-div"></div>
                 <div className="mb-2 items-center justify-center">
-                  <Link
-                    className="flex items-center justify-center
+                  {video && video.media_url.endsWith('.avi') &&
+                    <a className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
-                    text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
-                    href={{
-                      pathname: '/video',
-                      query: {
-                        cameraId: camera.id,
-                        cameraName: camera.name,
-                        videoId: video.id
-                      }
-                    }}
-                  >
-                    Accede al último video
-                  </Link>
+                    text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" 
+                    href={video.media_url} download>Descargar el último video</a>
+                  }
+                  {video && !video.media_url.endsWith('.avi') &&
+                    <Link
+                      href={{
+                        pathname: '/video',
+                        query: {
+                          cameraId: camera.id,
+                          cameraName: camera.name,
+                          videoId: video && video.id ? video.id : null
+                        }
+                      }}
+                    >
+                      <a
+                        className="flex items-center justify-center
+            rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
+            text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
+                      >
+                        Accede al último video
+                      </a>
+                    </Link>
+                  }
                 </div>
 
                 <div className="mb-2 items-center justify-center">
@@ -273,14 +285,14 @@ const CamaraPage = ({ camera, picture, video }) => {
                     className="flex items-center justify-center
                   rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium text-white
                   transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
-                  href={{
-                    pathname: '/photo',
-                    query: {
-                      cameraId: camera.id,
-                      cameraName: camera.name,
-                      pictureId: picture.id
-                    }
-                  }}
+                    href={{
+                      pathname: '/photo',
+                      query: {
+                        cameraId: camera.id,
+                        cameraName: camera.name,
+                        pictureId: picture.id
+                      }
+                    }}
                   >
                     Accede a la última foto
                   </Link>

@@ -240,13 +240,13 @@ const CamaraPage = ({ camera, picture, video }) => {
               >
                 <div className="ocultar-div"></div>
                 <div className="mb-2 items-center justify-center">
-                  {video && video.media_url.endsWith('.avi') &&
+                  {video && video.media_url && video.media_url.endsWith('.avi') &&
                     <a className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
                     text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" 
                     href={video.media_url} download>Descargar el último video</a>
                   }
-                  {video && !video.media_url.endsWith('.avi') &&
+                  {video && video.media_url && !video.media_url.endsWith('.avi') &&
                     <Link
                       href={{
                         pathname: '/video',

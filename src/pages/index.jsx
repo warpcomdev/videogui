@@ -45,7 +45,7 @@ export async function getServerSideProps(context) {
  */
 async function getData(token) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/api/camera";
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/camera";
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {

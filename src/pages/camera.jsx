@@ -52,7 +52,7 @@ export async function getServerSideProps(context) {
 async function getData(token, id) {
   try {
     console.log('ID', id);
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/api/camera/${id}`;
+    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/v1/api/camera/${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -81,7 +81,7 @@ async function getData(token, id) {
 async function getPictureData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
-      + `/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+      + `/v1/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -107,7 +107,7 @@ async function getPictureData(token, id) {
 async function getVideoData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
-      + `/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+      + `/v1/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -244,7 +244,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                     <a className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
                     text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" 
-                    href={video.media_url} download>Descargar el último video</a>
+                    href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${video.media_url}`} download>Descargar el último video</a>
                   }
                   {video && video.media_url && !video.media_url.endsWith('.avi') &&
                     <Link

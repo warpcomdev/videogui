@@ -64,6 +64,7 @@ async function getData(token, id) {
 }
 
 const FotoPage = ({picture}) => {
+  const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
   const searchParams = useSearchParams();
 
   const camera = {
@@ -86,7 +87,7 @@ const FotoPage = ({picture}) => {
             <div className="w-full px-6 lg:max-w-none">
               {/* Foto Start --->*/}
               <Image
-                src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${picture.media_url}`}
+                src={`${urlData}/v1/media/${picture.media_url}`}
                 alt={`${picture.id}`}
                 width={100}
                 height={25}

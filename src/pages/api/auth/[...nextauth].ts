@@ -42,8 +42,7 @@ const options: NextAuthOptions = {
           body: JSON.stringify(credentials),
           headers: { 'Content-type': 'application/json' },
         })
-
-        console.log('LOGIN', res);
+        
         const user: User = await res.json()
 
         const urlCameras = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/camera";

@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import ThemeToggler from "./ThemeToggler";
 import { signOut, useSession } from "next-auth/react"
 
 const Header = () => {
@@ -219,9 +218,9 @@ const Header = () => {
                     Cerrar sesión
                   </button>
                 )}
-                <div>
+                {/* <div>
                   <ThemeToggler />
-                </div>
+                </div> */}
               </div>
               {/* Header Button End -------> */}
             </div>

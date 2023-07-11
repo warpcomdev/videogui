@@ -59,10 +59,13 @@ const UploadMediaPage = () => {
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      'image/png': ['.png'], 
-      'image/jpeg': ['.jpg', '.jpeg'] 
-    },
+    accept: [
+      'image/png',
+      'image/jpeg',
+      'video/mp4',
+      'video/quicktime',
+      'video/x-msvideo',
+    ],
     onDrop: handleFileDrop
   });
 
@@ -84,8 +87,11 @@ const UploadMediaPage = () => {
 
     try {
       if (file) {
-          console.log('TYPEFILE', file);
-          const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/" + 'picture';
+          var typeFile = 'video'
+          if ( file.type.includes('image')){
+            typeFile = 'picture'
+          }
+          const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/" + typeFile;
           const res = await fetchJson(urlData, {
             method: 'POST',
             headers: {
@@ -101,7 +107,7 @@ const UploadMediaPage = () => {
             console.log('res ok');
             const fileData = new FormData();
             fileData.append('file', file, file.name);
-            const fileRes = await fetch(`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/picture/${data.id}`, {
+            const fileRes = await fetch(`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/${typeFile}/${data.id}`, {
               method: 'POST',
               headers: { 
                 'Accept': 'application/json',

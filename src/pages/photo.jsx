@@ -8,6 +8,7 @@ import fetchJson from "../lib/fetchJson";
 
 
 export async function getServerSideProps(context) {
+  const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
   const { cameraId, pictureId } = context.query;
   const session = await getSession(context);
   if (!session) {
@@ -24,13 +25,15 @@ export async function getServerSideProps(context) {
       props: {
         session,
         picture: data,
+        urlData
       }
     };
   } else {
     return {
       props: {
         session,
-        picture: null
+        picture: null,
+        urlData
       },
     };
   }
@@ -63,8 +66,7 @@ async function getData(token, id) {
   }
 }
 
-const FotoPage = ({picture}) => {
-  const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
+const FotoPage = ({picture, urlData}) => {
   const searchParams = useSearchParams();
 
   const camera = {

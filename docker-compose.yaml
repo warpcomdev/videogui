@@ -2,9 +2,7 @@ version: '3'
 
 services:
   videogui-env-production:
-    build:
-      context: /
-      dockerfile: Dockerfile
+    build: .
     image: videogui
     ports:
       - '3003:3000'

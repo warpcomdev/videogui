@@ -41,11 +41,11 @@ RUN yarn install --production --frozen-lockfile --ignore-scripts --prefer-offlin
 # This starts our application's run image - the final output of build.
 FROM node:20-alpine
 
-ENV NODE_ENV production
-ENV NEXT_PUBLIC_VIDEOAPI_URL='http://localhost:8080'
-ENV NEXTAUTH_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
-ENV JWT_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
-ENV SECRET_COOKIE_PASSWORD='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
+#ENV NODE_ENV production
+#ENV NEXT_PUBLIC_VIDEOAPI_URL='http://localhost:8080'
+#ENV NEXTAUTH_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
+#ENV JWT_SECRET='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
+#ENV SECRET_COOKIE_PASSWORD='2gyZ3GDw3LHZQKDhPmPDL3sjREVRXPr8'
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
@@ -55,10 +55,14 @@ RUN adduser -S nextjs -u 1001
 # 2. the Next build output and static files
 # 3. the node_modules.
 WORKDIR /app
+COPY .env.pro /app/.env
+
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/package.json /app/yarn.lock ./
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/public ./public
 COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/.next ./.next
+
+ENV NODE_TLS_REJECT_UNAUTHORIZED 0
 
 # 4. OPTIONALLY the next.config.js, if your app has one
 # COPY --from=BUILD_IMAGE --chown=nextjs:nodejs /app/next.config.js  ./

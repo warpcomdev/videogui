@@ -7,7 +7,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'badajoz.urbo2.es',
         port: '',
-        pathname: '/media/**',
+        pathname: '/v1/media/**',
       },
     ],
   },

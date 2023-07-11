@@ -40,7 +40,7 @@ export async function getServerSideProps(context) {
 async function getData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
-    + `/api/picture/${id}`;
+    + `/v1/api/picture/${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -86,7 +86,7 @@ const FotoPage = ({picture}) => {
             <div className="w-full px-6 lg:max-w-none">
               {/* Foto Start --->*/}
               <Image
-                src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/media/${picture.media_url}`}
+                src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${picture.media_url}`}
                 alt={`${picture.id}`}
                 width={100}
                 height={25}

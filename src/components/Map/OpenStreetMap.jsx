@@ -33,7 +33,7 @@ const Map22 = ({ camera }) => {
         <div className="container">
           {/* <h1 className='text-center-mt-5'>Localización de cámara</h1> scrollWheelZoom={false}*/}
           <Link
-            href="/camara"
+            href="/camera"
             // className="rounded-md bg-rojoinstitucional py-3 px-8 text-center text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
           >
             Localización de cámara

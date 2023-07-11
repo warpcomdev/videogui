@@ -34,7 +34,7 @@ function ButtonMarker(id, lat, lng, name) {
       eventHandlers={{
         click: () => {
           router.push({
-            pathname: "/camara",
+            pathname: "/camera",
             query: { id: id },
           });
         },

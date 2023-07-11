@@ -63,6 +63,7 @@ const UploadMediaPage = () => {
       'image/png',
       'image/jpeg',
       'video/mp4',
+      'video/avi',
       'video/quicktime',
       'video/x-msvideo',
     ],
@@ -180,7 +181,7 @@ const UploadMediaPage = () => {
 
             <div className="mb-4">
               <label htmlFor="tags" className="block font-medium mb-1">
-                Tags:
+                Etiquetas:
               </label>
               {formData.tags.map((tag, index) => (
                 <input

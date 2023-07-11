@@ -1,6 +1,26 @@
 import React from 'react'
 import Breadcrumb from "../components/Common/Breadcrumb";
 import Link from "next/link";
+import { getSession } from "next-auth/react"
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
+  } else {
+    return {
+      props: {
+        session,
+      },
+    }
+  }
+
+}
 
 const ConfigPage = () => {
   return (
@@ -51,10 +71,26 @@ const ConfigPage = () => {
                     Subida manual de vídeos y fotografías
                 </Link>
                 </div>
+              </div>
+            </div>
+            <div className="w-full px-6 py-6 lg:max-w-none">
+              <h2 className="text-2xl mb-6">Clasificación, etiquetado y eliminado de vídeos y fotografías</h2>
+              <div className="mx-auto mt-5 grid grid-cols-1 gap-4">
                 <div>
-                  <button className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp">
-                    Clasificación, etiquetado y eliminado de vídeos y fotografías
+                  <Link
+                    href="/cameras"
+                    className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
+                  >
+                    Videos
+                  </Link>
+                  <button >
+
                   </button>
+                </div>
+                <div>
+                <Link href="/photos" className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp">
+                    Fotografías
+                </Link>
                 </div>
               </div>
             </div>

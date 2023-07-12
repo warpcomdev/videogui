@@ -85,14 +85,14 @@ const VideoPage = ({ video }) => {
               <div className="relative aspect-[77/40] items-center justify-center">
 
                 {video.media_url.endsWith('.avi') &&
-                  <a href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${video.media_url}`} download>Descargar video</a>
+                  <a href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL: ""}/v1/media/${video.media_url}`} download>Descargar video</a>
                 }
                 {!video.media_url.endsWith('.avi') &&
                   <video
                     class="border-gray-200 dark:border-gray-700 h-auto w-full max-w-5xl rounded-lg border"
                     controls
                   >
-                    <source src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${video.media_url}`} type="video/mp4" />
+                    <source src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL: ""}/v1/media/${video.media_url}`} type="video/mp4" />
                     su navegador no soporte el TAG de video.
                   </video>
                 }

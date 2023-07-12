@@ -244,7 +244,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                     <a className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
                     text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" 
-                    href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${video.media_url}`} download>Descargar el último video</a>
+                    href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL: ""}/v1/media/${video.media_url}`} download>Descargar el último video</a>
                   }
                   {video && video.media_url && !video.media_url.endsWith('.avi') &&
                     <Link

@@ -23,7 +23,7 @@ export async function getServerSideProps(context) {
     return {
       props: {
         session,
-        picture: data,
+        picture: data
       }
     };
   } else {
@@ -87,7 +87,7 @@ const FotoPage = ({picture}) => {
             <div className="w-full px-6 lg:max-w-none">
               {/* Foto Start --->*/}
               <Image
-                src={`${urlData}/v1/media/${picture.media_url}`}
+                src={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL: ""}/v1/media/${picture.media_url}`}
                 alt={`${picture.id}`}
                 width={100}
                 height={25}

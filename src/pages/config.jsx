@@ -78,7 +78,7 @@ const ConfigPage = () => {
               <div className="mx-auto mt-5 grid grid-cols-1 gap-4">
                 <div>
                   <Link
-                    href="/cameras"
+                    href="/videos"
                     className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
                   >
                     Videos

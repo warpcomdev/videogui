@@ -9,8 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@hookform/error-message": "~2.0.1",
     "@material-tailwind/react": "~1.4.2",
+    "@mui/material": "^5.14.0",
     "@next/font": "13.1.6",
     "cssnano": "~6.0.0",
     "eslint": "8.33.0",
@@ -24,6 +27,7 @@
     "react-dropzone": "^14.2.3",
     "react-hook-form": "~7.43.9",
     "react-leaflet": "~4.2.1",
+    "react-tailwindcss-datepicker": "^1.6.3",
     "typescript": "~5.0.4"
   },
   "devDependencies": {

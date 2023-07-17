@@ -27,16 +27,16 @@ const ListPhotosPage = () => {
   const [currentPage, setCurrentPage] = useState('limit=10&offset=0');
   const [nextPage, setNextPage] = useState('');
   const [prevPage, setPrevPage] = useState('');
-  const [pictures, setPictures] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   useEffect(() => {
-    fetchPictures();
+    fetchVideos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  const fetchPictures = async () => {
+  const fetchVideos = async () => {
     try {
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/picture?${currentPage}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video?${currentPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
         headers: {
@@ -49,7 +49,8 @@ const ListPhotosPage = () => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
-      setPictures(res.data);
+      console.log('RES', res);
+      setVideos(res.data);
       setNextPage(res.next);
       setPrevPage(res.prev);
     } catch (error) {
@@ -59,22 +60,22 @@ const ListPhotosPage = () => {
 
   const handleChange = (e, id) => {
     const { name, value } = e.target
-    const editData = pictures.map((picture) =>
-      picture.id === id && name ? { ...picture, [name]: value } : picture)
-    setPictures(editData)
+    const editData = videos.map((video) =>
+      video.id === id && name ? { ...video, [name]: value } : video)
+    setVideos(editData)
   }
 
   const handleSave = async (id) => {
     let newTags = [];
 
-    pictures
-      .filter(picture => picture.id === id)
-      .map(picture => {
-        newTags = newTags.concat(picture.tags);
+    videos
+      .filter(video => video.id === id)
+      .map(video => {
+        newTags = newTags.concat(video.tags);
       });
     const tagsArray = newTags[0].split(',').map(tag => tag.trim());
     try {
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/picture/${id}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video/${id}`;
       const res = await fetch(urlData, {
         method: "PUT",
         headers: {
@@ -100,7 +101,7 @@ const ListPhotosPage = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Consulta y modificación de fotografías de captura automática" description="" />
+      <Breadcrumb pageName="Consulta y modificación de videos de captura automática" description="" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap">
@@ -111,7 +112,7 @@ const ListPhotosPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fotografía
+                        Video
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Cámara
@@ -125,16 +126,16 @@ const ListPhotosPage = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {pictures.map((picture, index) => (
-                      <tr key={picture.id}>
+                    {videos.map((video, index) => (
+                      <tr key={video.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{picture.id}</div>
+                          <div className="text-sm text-gray-900">{video.id}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{picture.camera}</div>
+                          <div className="text-sm text-gray-900">{video.camera}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{picture.timestamp}</div>
+                          <div className="text-sm text-gray-900">{video.timestamp}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="relative flex flex-grow items-stretch focus-within:z-10">
@@ -142,12 +143,12 @@ const ListPhotosPage = () => {
                               className="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                               name="tags"
                               type="text"
-                              value={picture.tags}
-                              onChange={(e) => handleChange(e, picture.id)}
+                              value={video.tags}
+                              onChange={(e) => handleChange(e, video.id)}
                               placeholder="Type Position"
                             />
                             <button
-                              onClick={() => handleSave(picture.id)}
+                              onClick={() => handleSave(video.id)}
                               type="button"
                               className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                             >

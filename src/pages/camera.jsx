@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import fetchJson from "../lib/fetchJson";
 import Breadcrumb from "../components/Common/Breadcrumb";
-import { getSession } from "next-auth/react"
+import { getSession, useSession } from "next-auth/react"
+
+import PropTypes from 'prop-types';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Datepicker from "react-tailwindcss-datepicker";
 
 import "../styles/Camara.module.css";
-import { Button } from "@material-tailwind/react";
 
 
 export async function getServerSideProps(context) {
@@ -130,11 +136,51 @@ async function getVideoData(token, id) {
   }
 }
 
+function CustomTabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
+}
+
+CustomTabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+
+
 /**
  * Página Camara
  */
 const CamaraPage = ({ camera, picture, video }) => {
   const nombreCamara = `${camera.id} - ${camera.name}`;
+  const [search, setSearch] = useState('');
+  const [dateValue, setDateValue] = useState({
+    startDate: new Date(),
+    endDate: new Date().setMonth(11)
+  });
 
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
@@ -142,6 +188,107 @@ const CamaraPage = ({ camera, picture, video }) => {
       ssr: false,
     }
   );
+
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+  const { data: session } = useSession();
+
+  /**
+   * Videos
+   */
+  const [currentVideoPage, setCurrentVideoPage] = useState('limit=10&offset=0');
+  const [nextVideoPage, setNextVideoPage] = useState('');
+  const [prevVideoPage, setPrevVideoPage] = useState('');
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    fetchVideos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentVideoPage]);
+
+  const fetchVideos = async () => {
+    try {
+      console.log('CAMERa', camera.id);
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video?q-camera-eq=${camera.id}&${currentVideoPage}`;
+      const res = await fetchJson(urlData, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + session.user.token,
+        },
+      });
+
+      if (!res || res.error) {
+        throw new Error("Ocurrió un error al extraer los datos");
+      }
+      console.log('RES', res);
+      setVideos(res.data);
+      setNextVideoPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
+      setPrevVideoPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
+    } catch (error) {
+      console.log("ERROR", error);
+    }
+  };
+
+  /**
+   * Fotos
+   */
+
+  const [currentPage, setCurrentPage] = useState('limit=10&offset=0');
+  const [nextPage, setNextPage] = useState('');
+  const [prevPage, setPrevPage] = useState('');
+  const [pictures, setPictures] = useState([]);
+
+  useEffect(() => {
+    console.log('CURRENT PICTURE PAGE', currentPage);
+    fetchPictures();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage]);
+
+  const fetchPictures = async () => {
+    try {
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/picture?q-camera-eq=${camera.id}&${currentPage}`;
+      const res = await fetchJson(urlData, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + session.user.token,
+        },
+      });
+
+      if (!res || res.error) {
+        throw new Error("Ocurrió un error al extraer los datos");
+      }
+      setPictures(res.data);
+      setNextPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
+      setPrevPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
+    } catch (error) {
+      console.log("ERROR", error);
+    }
+  };
+
+  const handleSearch = (value) => {
+    setSearch(value);
+  };
+
+  const handleSearchSubmit = () => {
+    let arraySearch = search.split(' ');
+    let convertedString = arraySearch.map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
+    setCurrentVideoPage(`limit=10&offset=0${convertedString}`);
+    setCurrentPage(`limit=10&offset=0${convertedString}`);
+  };
+
+  const handleDateValueChange = (newValue) => {
+    console.log("newValue:", newValue);
+    setDateValue(newValue);
+  }
+
 
   return (
     <>
@@ -176,7 +323,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                 {/* Mapa camara End --->*/}
 
                 {/* Detalle camara Start --->*/}
-                <div mb-5>
+                <div mb-12>
                   <form>
                     <div className="mb-3">
                       <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
@@ -243,8 +390,8 @@ const CamaraPage = ({ camera, picture, video }) => {
                   {video && video.media_url && video.media_url.endsWith('.avi') &&
                     <a className="flex items-center justify-center
                     rounded-md bg-rojoinstitucional px-9 py-4 text-xl font-medium
-                    text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" 
-                    href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/media/${video.media_url}`} download>Descargar el último video</a>
+                    text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp"
+                      href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/media/${video.media_url}`} download>Descargar el último video</a>
                   }
                   {video && video.media_url && !video.media_url.endsWith('.avi') &&
                     <Link
@@ -304,8 +451,13 @@ const CamaraPage = ({ camera, picture, video }) => {
                   sm:gap-x-1 lg:mx-0 lg:max-w-none
                   lg:grid-cols-3"
                 >
-                  <div></div>
-                  <div className="mx-[-12px] flex flex-wrap items-center justify-center ">
+                  <div className="mr-4">
+                    <Datepicker
+                    value={value}
+                    onChange={handleDateValueChange}
+                    /> 
+                  </div>
+                  <div className="mx-[-12px] flex flex-wrap items-center justify-center">
                     <input
                       type="search"
                       class="border-neutral-300 text-neutral-700 focus:text-neutral-700
@@ -315,9 +467,10 @@ const CamaraPage = ({ camera, picture, video }) => {
                     leading-[1.6] outline-none transition duration-200 ease-in-out focus:z-[3]
                     focus:border-rojoinstitucional focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)]
                     focus:outline-none dark:focus:border-rojoinstitucional"
-                      placeholder="Explora todos los videos y fotografías"
+                      placeholder="Explora todos los archivos"
                       aria-label="Search"
                       aria-describedby="button-addon1"
+                      onChange={(e) => handleSearch(e.target.value)}
                     />
 
                     {/* <!--Search button--> */}
@@ -331,6 +484,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                       id="button-addon1"
                       data-te-ripple-init
                       data-te-ripple-color="light"
+                      onClick={handleSearchSubmit}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -346,6 +500,182 @@ const CamaraPage = ({ camera, picture, video }) => {
                       </svg>
                     </button>
                   </div>
+                </div>
+                <div>
+                  <Box sx={{ width: '100%' }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                      <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                        <Tab label="Videos" {...a11yProps(0)} />
+                        <Tab label="Fotografías" {...a11yProps(1)} />
+                      </Tabs>
+                    </Box>
+                    <CustomTabPanel value={value} index={0}>
+                      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-wrap">
+                          <div className="w-full px-4">
+                            <div className="wow fadeInUp mb-12 rounded-md bg-primary/[3%] py-11 px-8 dark:bg-dark sm:p-[55px] lg:mb-5 lg:px-8 xl:p-[55px]" data-wow-delay=".15s">
+                              <div className="overflow-x-auto min-w-[600px] sm:min-w-[0]">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Video
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Cámara
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Etiquetas
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="bg-white divide-y divide-gray-200">
+                                    {videos.map((video, index) => (
+                                      <tr key={video.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          {video && video.media_url && video.media_url.endsWith('.avi') &&
+                                            <a href={`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/media/${video.media_url}`} download><div className="text-sm text-gray-900">{video.id}</div></a>
+                                          }
+                                          {video && video.media_url && !video.media_url.endsWith('.avi') &&
+                                            <Link
+                                              href={{
+                                                pathname: '/video',
+                                                query: {
+                                                  cameraId: camera.id,
+                                                  cameraName: camera.name,
+                                                  videoId: video && video.id ? video.id : null
+                                                }
+                                              }}
+                                            >
+                                              <div className="text-sm text-gray-900">{video.id}</div>
+                                            </Link>
+                                          }
+                                          {video && !video.media_url &&
+                                            <div className="text-sm text-gray-900">{video.id}</div>
+                                          }
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <div className="text-sm text-gray-900">{video.camera}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <div className="text-sm text-gray-900">{video.timestamp}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          {video.tags.map((tag, tagIndex) => (
+                                            <span key={tagIndex} className="mr-1">{tag}</span>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex justify-end mt-4">
+                                <button
+                                  onClick={() => setCurrentVideoPage(prevVideoPage)}
+                                  className={`px-6 py-2 border border-gray-300 text-sm text-black font-medium rounded-md 
+                  ${prevVideoPage === "" && "opacity-50 cursor-not-allowed"}`}
+                                  disabled={prevVideoPage === ""}
+                                >
+                                  Anterior
+                                </button>
+                                <button
+                                  onClick={() => setCurrentVideoPage(nextVideoPage)}
+                                  className={`ml-2 px-6 py-2 border border-gray-300 text-sm text-black font-medium rounded-md 
+                  ${nextVideoPage === "" && "opacity-50 cursor-not-allowed"}`}
+                                  disabled={nextVideoPage === ""}
+                                >
+                                  Siguiente
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CustomTabPanel>
+                    <CustomTabPanel value={value} index={1}>
+                      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-wrap">
+                          <div className="w-full px-4">
+                            <div className="wow fadeInUp mb-12 rounded-md bg-primary/[3%] py-11 px-8 dark:bg-dark sm:p-[55px] lg:mb-5 lg:px-8 xl:p-[55px]" data-wow-delay=".15s">
+                              <div className="overflow-x-auto min-w-[600px] sm:min-w-[0]">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                  <thead className="bg-gray-50">
+                                    <tr>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fotografía
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Cámara
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Fecha
+                                      </th>
+                                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Etiquetas
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="bg-white divide-y divide-gray-200">
+                                    {pictures.map((picture, index) => (
+                                      <tr key={picture.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <Link
+                                            href={{
+                                              pathname: '/photo',
+                                              query: {
+                                                cameraId: camera.id,
+                                                cameraName: camera.name,
+                                                pictureId: picture.id
+                                              }
+                                            }}
+                                          >
+                                            <div className="text-sm text-gray-900">{picture.id}</div>
+                                          </Link>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <div className="text-sm text-gray-900">{picture.camera}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          <div className="text-sm text-gray-900">{picture.timestamp}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                          {picture.tags.map((tag, tagIndex) => (
+                                            <span key={tagIndex} className="mr-1">{tag}</span>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                              <div className="flex justify-end mt-4">
+                                <button
+                                  onClick={() => setCurrentPage(prevPage)}
+                                  className={`px-6 py-2 border border-gray-300 text-sm text-black font-medium rounded-md 
+                  ${prevPage === "" && "opacity-50 cursor-not-allowed"}`}
+                                  disabled={prevPage === ""}
+                                >
+                                  Anterior
+                                </button>
+                                <button
+                                  onClick={() => setCurrentPage(nextPage)}
+                                  className={`ml-2 px-6 py-2 border border-gray-300 text-sm text-black font-medium rounded-md 
+                  ${nextPage === "" && "opacity-50 cursor-not-allowed"}`}
+                                  disabled={nextPage === ""}
+                                >
+                                  Siguiente
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CustomTabPanel>
+                  </Box>
                 </div>
               </div>
             </div>

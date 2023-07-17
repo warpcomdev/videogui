@@ -77,7 +77,8 @@ const AlertPage = (alerts) => {
   const totalPages = Math.ceil(totalAlerts.length / itemsPerPage); // Calcular el número total de páginas
 
   const handleAcknowledge = (id) => {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/v1/api/alert/${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/alert/${encodeURIComponent(id)}`;
+    console.log('URLDATA', urlData);
     fetch(urlData, {
       method: 'PUT',
       headers: {
@@ -98,7 +99,7 @@ const AlertPage = (alerts) => {
   };
 
   const handleResolve = (id) => {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/v1/api/alert/${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/alert/${encodeURIComponent(id)}`;
     fetch(urlData, {
       method: 'PUT',
       headers: {
@@ -183,7 +184,10 @@ const AlertPage = (alerts) => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {alert.resolved_at === null ? (
-                            <button className="px-4 py-2 bg-yellow rounded">Resolver</button>
+                            <button 
+                            className="px-4 py-2 bg-yellow rounded"
+                            onClick={() => handleResolve(alert.id)}
+                            >Resolver</button>
                           ) : (
                             <div className="text-sm text-gray-500">{alert.resolved_at}</div>
                           )}

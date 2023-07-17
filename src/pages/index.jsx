@@ -74,7 +74,6 @@ export async function getServerSideProps(context) {
     }
   }
   var data = await getData(session.user.token);
-  console.log(data);
   if (data) {
     return {
       props: {

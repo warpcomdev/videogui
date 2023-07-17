@@ -10,6 +10,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Datepicker from "react-tailwindcss-datepicker";
 
 import "../styles/Camara.module.css";
 
@@ -176,6 +177,10 @@ function a11yProps(index) {
 const CamaraPage = ({ camera, picture, video }) => {
   const nombreCamara = `${camera.id} - ${camera.name}`;
   const [search, setSearch] = useState('');
+  const [dateValue, setDateValue] = useState({
+    startDate: new Date(),
+    endDate: new Date().setMonth(11)
+  });
 
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
@@ -278,6 +283,11 @@ const CamaraPage = ({ camera, picture, video }) => {
     setCurrentVideoPage(`limit=10&offset=0${convertedString}`);
     setCurrentPage(`limit=10&offset=0${convertedString}`);
   };
+
+  const handleDateValueChange = (newValue) => {
+    console.log("newValue:", newValue);
+    setDateValue(newValue);
+  }
 
 
   return (
@@ -441,7 +451,12 @@ const CamaraPage = ({ camera, picture, video }) => {
                   sm:gap-x-1 lg:mx-0 lg:max-w-none
                   lg:grid-cols-3"
                 >
-                  <div></div>
+                  <div className="mr-4">
+                    <Datepicker
+                    value={value}
+                    onChange={handleDateValueChange}
+                    /> 
+                  </div>
                   <div className="mx-[-12px] flex flex-wrap items-center justify-center">
                     <input
                       type="search"

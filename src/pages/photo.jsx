@@ -64,6 +64,7 @@ async function getData(token, id) {
 }
 
 const FotoPage = ({picture}) => {
+  const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
   const searchParams = useSearchParams();
 
   const camera = {

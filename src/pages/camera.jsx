@@ -213,7 +213,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   const fetchVideos = async () => {
     try {
       console.log('CAMERa', camera.id);
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video?q-camera-eq=${camera.id}&${currentVideoPage}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video?q-camera-eq=${camera.id}&${currentVideoPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
         headers: {
@@ -252,7 +252,7 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const fetchPictures = async () => {
     try {
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/picture?q-camera-eq=${camera.id}&${currentPage}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/picture?q-camera-eq=${camera.id}&${currentPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
         headers: {

@@ -119,8 +119,8 @@ const VideoPage = ({ video }) => {
             <div className="ocultar-div"></div>
             <div className="ocultar-div"></div>
             <Link
-              href="/camera"
-              className="rounded-md bg-rojoinstitucional py-3 px-8 text-center text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
+              href={`/camera?id=${camera.id}`}
+              className="rounded-md bg-rojoinstitucional px-8 py-3 text-center text-base font-bold text-white shadow-signUp duration-300 hover:bg-white hover:text-primary md:px-9 lg:px-8 xl:px-9"
             >
               Volver a camara
             </Link>

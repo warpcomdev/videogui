@@ -10,10 +10,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Datepicker from "react-tailwindcss-datepicker";
 
 import "../styles/Camara.module.css";
-
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
@@ -52,9 +50,6 @@ export async function getServerSideProps(context) {
 
 }
 
-/**
- * Función para obtener los datos de las cámaras
- */
 async function getData(token, id) {
   try {
     console.log('ID', id);
@@ -81,9 +76,6 @@ async function getData(token, id) {
   }
 }
 
-/**
- * Función para obtener los datos de la última foto
- */
 async function getPictureData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
@@ -177,10 +169,24 @@ function a11yProps(index) {
 const CamaraPage = ({ camera, picture, video }) => {
   const nombreCamara = `${camera.id} - ${camera.name}`;
   const [search, setSearch] = useState('');
-  const [dateValue, setDateValue] = useState({
-    startDate: new Date(),
-    endDate: new Date().setMonth(11)
-  });
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
+  const handleRangeSubmit = (event) => {
+    event.preventDefault();
+    // Aquí puedes utilizar startDate y endDate para realizar las acciones que desees
+    console.log('Fecha de inicio:', startDate);
+    console.log('Fecha de fin:', endDate);
+  };
 
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
@@ -200,7 +206,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   /**
    * Videos
    */
-  const [currentVideoPage, setCurrentVideoPage] = useState('limit=10&offset=0');
+  const [currentVideoPage, setCurrentVideoPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextVideoPage, setNextVideoPage] = useState('');
   const [prevVideoPage, setPrevVideoPage] = useState('');
   const [videos, setVideos] = useState([]);
@@ -239,7 +245,7 @@ const CamaraPage = ({ camera, picture, video }) => {
    * Fotos
    */
 
-  const [currentPage, setCurrentPage] = useState('limit=10&offset=0');
+  const [currentPage, setCurrentPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextPage, setNextPage] = useState('');
   const [prevPage, setPrevPage] = useState('');
   const [pictures, setPictures] = useState([]);
@@ -280,14 +286,17 @@ const CamaraPage = ({ camera, picture, video }) => {
   const handleSearchSubmit = () => {
     let arraySearch = search.split(' ');
     let convertedString = arraySearch.map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
-    setCurrentVideoPage(`limit=10&offset=0${convertedString}`);
-    setCurrentPage(`limit=10&offset=0${convertedString}`);
+    if (startDate){
+      let start = new Date(Date.UTC(startDate))
+      convertedString = `${convertedString}&q-timestamp-ge=${start}`
+    }
+    if (endDate){
+      let end = new Date(Date.UTC(endDate))
+      convertedString = `${convertedString}&q-timestamp-le=${end}`
+    }
+    setCurrentVideoPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
+    setCurrentPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
   };
-
-  const handleDateValueChange = (newValue) => {
-    console.log("newValue:", newValue);
-    setDateValue(newValue);
-  }
 
 
   return (
@@ -323,7 +332,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                 {/* Mapa camara End --->*/}
 
                 {/* Detalle camara Start --->*/}
-                <div mb-12>
+                <div>
                   <form>
                     <div className="mb-3">
                       <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
@@ -373,7 +382,7 @@ const CamaraPage = ({ camera, picture, video }) => {
             <div className="w-full px-6 lg:max-w-none">
               {/* botones acceso último video - foto Start --->*/}
               <div
-                class="sm:grid-cols
+                className="sm:grid-cols
                   mx-auto
                   mt-5
                   grid
@@ -440,46 +449,22 @@ const CamaraPage = ({ camera, picture, video }) => {
                 className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none"
                 data-wow-delay=".15s"
               >
-                <div
-                  className="mx-auto
-                  mt-8
-                  grid
-                  max-w-lg
-                  grid-cols-3
-                  items-center gap-x-1
-                  gap-y-10 sm:max-w-xl sm:grid-cols-2
-                  sm:gap-x-1 lg:mx-0 lg:max-w-none
-                  lg:grid-cols-3"
-                >
-                  <div className="mr-4">
-                    <Datepicker
-                    value={value}
-                    onChange={handleDateValueChange}
-                    /> 
+                <div className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none" data-wow-delay=".15s">
+                  <div>
+                    <input type="datetime-local" value={startDate} onChange={handleStartDateChange} />
+                    <input type="datetime-local" value={endDate} onChange={handleEndDateChange} />
                   </div>
-                  <div className="mx-[-12px] flex flex-wrap items-center justify-center">
+                  <div className="flex">
                     <input
                       type="search"
-                      class="border-neutral-300 text-neutral-700 focus:text-neutral-700
-                    dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200
-                    relative m-0 -mr-0.5 block w-[1px] min-w-0 flex-auto rounded-l border border-solid
-                    bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal
-                    leading-[1.6] outline-none transition duration-200 ease-in-out focus:z-[3]
-                    focus:border-rojoinstitucional focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)]
-                    focus:outline-none dark:focus:border-rojoinstitucional"
+                      className="border-neutral-300 text-neutral-700 focus:text-neutral-700 dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 relative m-0 -mr-0.5 block w-[1px] min-w-0 flex-auto rounded-l border border-solid bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-rojoinstitucional focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:focus:border-rojoinstitucional"
                       placeholder="Explora todos los archivos"
                       aria-label="Search"
                       aria-describedby="button-addon1"
                       onChange={(e) => handleSearch(e.target.value)}
                     />
-
-                    {/* <!--Search button--> */}
                     <button
-                      class="relative z-[2] flex
-                    items-center rounded-r bg-rojoinstitucional px-6 py-2.5 text-xs
-                    font-medium uppercase leading-tight text-white shadow-md transition
-                    duration-150 ease-in-out hover:bg-rojoinstitucional10 hover:shadow-lg focus:bg-rojoinstitucional 
-                    focus:shadow-lg focus:outline-none focus:ring-0 active:bg-rojoinstitucional active:shadow-lg"
+                      className="relative z-[2] flex items-center rounded-r bg-rojoinstitucional px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition duration-150 ease-in-out hover:bg-rojoinstitucional10 hover:shadow-lg focus:bg-rojoinstitucional focus:shadow-lg focus:outline-none focus:ring-0 active:bg-rojoinstitucional active:shadow-lg"
                       type="button"
                       id="button-addon1"
                       data-te-ripple-init
@@ -490,17 +475,19 @@ const CamaraPage = ({ camera, picture, video }) => {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="h-5 w-5"
+                        className="h-5 w-5"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                          clip-rule="evenodd"
+                          clipRule="evenodd"
                         />
                       </svg>
                     </button>
                   </div>
                 </div>
+
+
                 <div>
                   <Box sx={{ width: '100%' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -533,6 +520,12 @@ const CamaraPage = ({ camera, picture, video }) => {
                                     </tr>
                                   </thead>
                                   <tbody className="bg-white divide-y divide-gray-200">
+                                    {/* <tr>
+                                      <td>a</td>
+                                      <td>a</td>
+                                      <td>a</td>
+                                      <td>a</td>
+                                    </tr> */}
                                     {videos.map((video, index) => (
                                       <tr key={video.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">

@@ -71,8 +71,10 @@ async function getData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR CAMERA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
@@ -97,8 +99,10 @@ async function getPictureData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR CAMERA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
@@ -123,8 +127,10 @@ async function getVideoData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR VIDEO DATA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
@@ -167,7 +173,7 @@ function a11yProps(index) {
  * Página Camara
  */
 const CamaraPage = ({ camera, picture, video }) => {
-  const nombreCamara = `${camera.id} - ${camera.name}`;
+  const nombreCamara = `${camera?.id} - ${camera?.name}`;
   const [search, setSearch] = useState('');
 
   const [startDate, setStartDate] = useState('');
@@ -179,13 +185,6 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const handleEndDateChange = (event) => {
     setEndDate(event.target.value);
-  };
-
-  const handleRangeSubmit = (event) => {
-    event.preventDefault();
-    // Aquí puedes utilizar startDate y endDate para realizar las acciones que desees
-    console.log('Fecha de inicio:', startDate);
-    console.log('Fecha de fin:', endDate);
   };
 
   const OpenStreetMap = dynamic(
@@ -285,14 +284,12 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const handleSearchSubmit = () => {
     let arraySearch = search.split(' ');
-    let convertedString = arraySearch.map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
-    if (startDate){
-      let start = new Date(Date.UTC(startDate))
-      convertedString = `${convertedString}&q-timestamp-ge=${start}`
+    let convertedString = arraySearch.filter(item => item.length > 0).map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
+    if (startDate) {
+      convertedString = `${convertedString}&q-timestamp-ge=${startDate}:00Z`
     }
-    if (endDate){
-      let end = new Date(Date.UTC(endDate))
-      convertedString = `${convertedString}&q-timestamp-le=${end}`
+    if (endDate) {
+      convertedString = `${convertedString}&q-timestamp-le=${endDate}:00Z`
     }
     setCurrentVideoPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
     setCurrentPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
@@ -339,7 +336,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Id
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.id}
+                        {camera?.id}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -347,7 +344,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Nombre
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.name}
+                        {camera?.name}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -355,7 +352,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Fecha de creación
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
+                        {camera?.created_at}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -363,7 +360,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Fecha de actualización
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
+                        {camera?.created_at}
                       </label>
                     </div>
                     <div className="mb-6">
@@ -371,7 +368,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Ruta local
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.local_path}
+                        {camera?.local_path}
                       </label>
                     </div>
                   </form>
@@ -432,9 +429,9 @@ const CamaraPage = ({ camera, picture, video }) => {
                     href={{
                       pathname: '/photo',
                       query: {
-                        cameraId: camera.id,
-                        cameraName: camera.name,
-                        pictureId: picture.id
+                        cameraId: camera?.id,
+                        cameraName: camera?.name,
+                        pictureId: picture?.id
                       }
                     }}
                   >

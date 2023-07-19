@@ -50,7 +50,6 @@ const ListPhotosPage = () => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
-
       const parametros = currentPage.split("&");
       const obj = {};
       parametros.forEach((parametro) => {

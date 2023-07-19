@@ -187,7 +187,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   const handleEndDateChange = (event) => {
     setEndDate(event.target.value);
   };
-
+  
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
     {
@@ -206,6 +206,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   /**
    * Videos
    */
+
   const [currentVideoPage, setCurrentVideoPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextVideoPage, setNextVideoPage] = useState('');
   const [prevVideoPage, setPrevVideoPage] = useState('');
@@ -251,6 +252,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   /**
    * Fotos
    */
+
 
   const [currentPage, setCurrentPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextPage, setNextPage] = useState('');
@@ -301,6 +303,7 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const handleSearchSubmit = () => {
     let arraySearch = search.split(' ');
+
     let convertedString = arraySearch.filter(item => item.length > 0).map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
     if (startDate) {
       convertedString = `${convertedString}&q-timestamp-ge=${startDate}:00Z`
@@ -311,7 +314,6 @@ const CamaraPage = ({ camera, picture, video }) => {
     setCurrentVideoPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
     setCurrentPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
   };
-
 
   return (
     <>
@@ -500,8 +502,6 @@ const CamaraPage = ({ camera, picture, video }) => {
                     </button>
                   </div>
                 </div>
-
-
                 <div>
                   <Box sx={{ width: '100%' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -534,12 +534,6 @@ const CamaraPage = ({ camera, picture, video }) => {
                                     </tr>
                                   </thead>
                                   <tbody className="bg-white divide-y divide-gray-200">
-                                    {/* <tr>
-                                      <td>a</td>
-                                      <td>a</td>
-                                      <td>a</td>
-                                      <td>a</td>
-                                    </tr> */}
                                     {videos.map((video, index) => (
                                       <tr key={video.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">

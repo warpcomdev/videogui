@@ -115,8 +115,10 @@ async function getData(token) {
 
     return res;
   } catch (error) {
-    console.error('ERROR', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 

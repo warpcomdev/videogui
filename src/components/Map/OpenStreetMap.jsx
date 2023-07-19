@@ -7,7 +7,7 @@ import Link from "next/link";
 
 // 38.614192, -6.972437
 const Map22 = ({ camera }) => {
-  const [center, setCenter] = useState([camera.latitude, camera.longitude]);
+  const [center, setCenter] = useState([camera?.latitude, camera?.longitude]);
 
   const ZOOM_LEVEL = 9;
   const mapRef = useRef();
@@ -54,9 +54,9 @@ const Map22 = ({ camera }) => {
                 />
                 <Marker position={center} icon={camaraIcon}>
                   <Popup>
-                    {camera.id} <br />
-                    {camera.name} <br />
-                    lat: {camera.latitude}, lng: {camera.longitude} <br />
+                    {camera?.id} <br />
+                    {camera?.name} <br />
+                    lat: {camera?.latitude}, lng: {camera?.longitude} <br />
                   </Popup>
                 </Marker>
               </MapContainer>

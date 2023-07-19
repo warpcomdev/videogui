@@ -10,10 +10,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Datepicker from "react-tailwindcss-datepicker";
 
 import "../styles/Camara.module.css";
-
+import { set } from "react-hook-form";
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
@@ -52,9 +51,6 @@ export async function getServerSideProps(context) {
 
 }
 
-/**
- * Función para obtener los datos de las cámaras
- */
 async function getData(token, id) {
   try {
     console.log('ID', id);
@@ -76,14 +72,13 @@ async function getData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR CAMERA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
-/**
- * Función para obtener los datos de la última foto
- */
 async function getPictureData(token, id) {
   try {
     const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
@@ -105,8 +100,10 @@ async function getPictureData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR CAMERA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
@@ -131,8 +128,10 @@ async function getVideoData(token, id) {
 
     return res;
   } catch (error) {
-    console.error('ERROR VIDEO DATA', error);
-    throw new Error("Ocurrio un error al extraer los datos");
+    if (!error.message.includes('Unauthorized')) {
+      console.log("ERROR", error);
+      throw new Error("Ocurrio un error al extraer los datos");
+    }
   }
 }
 
@@ -175,13 +174,20 @@ function a11yProps(index) {
  * Página Camara
  */
 const CamaraPage = ({ camera, picture, video }) => {
-  const nombreCamara = `${camera.id} - ${camera.name}`;
+  const nombreCamara = `${camera?.id} - ${camera?.name}`;
   const [search, setSearch] = useState('');
-  const [dateValue, setDateValue] = useState({
-    startDate: new Date(),
-    endDate: new Date().setMonth(11)
-  });
 
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+  
   const OpenStreetMap = dynamic(
     () => import("../components/Map/OpenStreetMap"),
     {
@@ -200,10 +206,12 @@ const CamaraPage = ({ camera, picture, video }) => {
   /**
    * Videos
    */
-  const [currentVideoPage, setCurrentVideoPage] = useState('limit=10&offset=0');
+
+  const [currentVideoPage, setCurrentVideoPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextVideoPage, setNextVideoPage] = useState('');
   const [prevVideoPage, setPrevVideoPage] = useState('');
   const [videos, setVideos] = useState([]);
+  const [pageVideo, setPageVideo] = useState(1);
 
   useEffect(() => {
     fetchVideos();
@@ -212,7 +220,6 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const fetchVideos = async () => {
     try {
-      console.log('CAMERa', camera.id);
       const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video?q-camera-eq=${camera.id}&${currentVideoPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
@@ -226,7 +233,14 @@ const CamaraPage = ({ camera, picture, video }) => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
-      console.log('RES', res);
+
+      const parametros = currentVideoPage.split("&");
+      const obj = {};
+      parametros.forEach((parametro) => {
+        const [clave, valor] = parametro.split("=");
+        obj[clave] = valor;
+      });
+      setPageVideo(Math.floor(obj['offset'] / 10) + 1)
       setVideos(res.data);
       setNextVideoPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
       setPrevVideoPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
@@ -239,10 +253,12 @@ const CamaraPage = ({ camera, picture, video }) => {
    * Fotos
    */
 
-  const [currentPage, setCurrentPage] = useState('limit=10&offset=0');
+
+  const [currentPage, setCurrentPage] = useState('sort=timestamp&ascending=false&limit=10&offset=0');
   const [nextPage, setNextPage] = useState('');
   const [prevPage, setPrevPage] = useState('');
   const [pictures, setPictures] = useState([]);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     console.log('CURRENT PICTURE PAGE', currentPage);
@@ -265,6 +281,14 @@ const CamaraPage = ({ camera, picture, video }) => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
+
+      const parametros = currentPage.split("&");
+      const obj = {};
+      parametros.forEach((parametro) => {
+        const [clave, valor] = parametro.split("=");
+        obj[clave] = valor;
+      });
+      setPage(Math.floor(obj['offset'] / 10) + 1)
       setPictures(res.data);
       setNextPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
       setPrevPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
@@ -279,16 +303,17 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const handleSearchSubmit = () => {
     let arraySearch = search.split(' ');
-    let convertedString = arraySearch.map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
-    setCurrentVideoPage(`limit=10&offset=0${convertedString}`);
-    setCurrentPage(`limit=10&offset=0${convertedString}`);
+
+    let convertedString = arraySearch.filter(item => item.length > 0).map(item => '&q-tags-eq=' + encodeURIComponent(item)).join('');
+    if (startDate) {
+      convertedString = `${convertedString}&q-timestamp-ge=${startDate}:00Z`
+    }
+    if (endDate) {
+      convertedString = `${convertedString}&q-timestamp-le=${endDate}:00Z`
+    }
+    setCurrentVideoPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
+    setCurrentPage(`sort=timestamp&ascending=false&limit=10&offset=0${convertedString}`);
   };
-
-  const handleDateValueChange = (newValue) => {
-    console.log("newValue:", newValue);
-    setDateValue(newValue);
-  }
-
 
   return (
     <>
@@ -323,14 +348,14 @@ const CamaraPage = ({ camera, picture, video }) => {
                 {/* Mapa camara End --->*/}
 
                 {/* Detalle camara Start --->*/}
-                <div mb-12>
+                <div>
                   <form>
                     <div className="mb-3">
                       <label className="mb-3 block text-sm font-medium text-dark dark:text-white">
                         Id
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.id}
+                        {camera?.id}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -338,7 +363,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Nombre
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.name}
+                        {camera?.name}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -346,7 +371,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Fecha de creación
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
+                        {camera?.created_at}
                       </label>
                     </div>
                     <div className="mb-3">
@@ -354,7 +379,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Fecha de actualización
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-2 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.created_at}
+                        {camera?.created_at}
                       </label>
                     </div>
                     <div className="mb-6">
@@ -362,7 +387,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                         Ruta local
                       </label>
                       <label className="w-full rounded-md border border-transparent px-6 py-3 text-base text-body-color placeholder-body-color shadow-one outline-none focus:border-primary focus-visible:shadow-none dark:bg-[#242B51] dark:shadow-signUp">
-                        {camera.local_path}
+                        {camera?.local_path}
                       </label>
                     </div>
                   </form>
@@ -373,7 +398,7 @@ const CamaraPage = ({ camera, picture, video }) => {
             <div className="w-full px-6 lg:max-w-none">
               {/* botones acceso último video - foto Start --->*/}
               <div
-                class="sm:grid-cols
+                className="sm:grid-cols
                   mx-auto
                   mt-5
                   grid
@@ -423,9 +448,9 @@ const CamaraPage = ({ camera, picture, video }) => {
                     href={{
                       pathname: '/photo',
                       query: {
-                        cameraId: camera.id,
-                        cameraName: camera.name,
-                        pictureId: picture.id
+                        cameraId: camera?.id,
+                        cameraName: camera?.name,
+                        pictureId: picture?.id
                       }
                     }}
                   >
@@ -440,46 +465,22 @@ const CamaraPage = ({ camera, picture, video }) => {
                 className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none"
                 data-wow-delay=".15s"
               >
-                <div
-                  className="mx-auto
-                  mt-8
-                  grid
-                  max-w-lg
-                  grid-cols-3
-                  items-center gap-x-1
-                  gap-y-10 sm:max-w-xl sm:grid-cols-2
-                  sm:gap-x-1 lg:mx-0 lg:max-w-none
-                  lg:grid-cols-3"
-                >
-                  <div className="mr-4">
-                    <Datepicker
-                    value={value}
-                    onChange={handleDateValueChange}
-                    /> 
+                <div className="wow fadeInUp mb-12 w-full lg:mb-0 lg:max-w-none" data-wow-delay=".15s">
+                  <div>
+                    <input type="datetime-local" value={startDate} onChange={handleStartDateChange} />
+                    <input type="datetime-local" value={endDate} onChange={handleEndDateChange} />
                   </div>
-                  <div className="mx-[-12px] flex flex-wrap items-center justify-center">
+                  <div className="flex">
                     <input
                       type="search"
-                      class="border-neutral-300 text-neutral-700 focus:text-neutral-700
-                    dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200
-                    relative m-0 -mr-0.5 block w-[1px] min-w-0 flex-auto rounded-l border border-solid
-                    bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal
-                    leading-[1.6] outline-none transition duration-200 ease-in-out focus:z-[3]
-                    focus:border-rojoinstitucional focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)]
-                    focus:outline-none dark:focus:border-rojoinstitucional"
+                      className="border-neutral-300 text-neutral-700 focus:text-neutral-700 dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 relative m-0 -mr-0.5 block w-[1px] min-w-0 flex-auto rounded-l border border-solid bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-rojoinstitucional focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:focus:border-rojoinstitucional"
                       placeholder="Explora todos los archivos"
                       aria-label="Search"
                       aria-describedby="button-addon1"
                       onChange={(e) => handleSearch(e.target.value)}
                     />
-
-                    {/* <!--Search button--> */}
                     <button
-                      class="relative z-[2] flex
-                    items-center rounded-r bg-rojoinstitucional px-6 py-2.5 text-xs
-                    font-medium uppercase leading-tight text-white shadow-md transition
-                    duration-150 ease-in-out hover:bg-rojoinstitucional10 hover:shadow-lg focus:bg-rojoinstitucional 
-                    focus:shadow-lg focus:outline-none focus:ring-0 active:bg-rojoinstitucional active:shadow-lg"
+                      className="relative z-[2] flex items-center rounded-r bg-rojoinstitucional px-6 py-2.5 text-xs font-medium uppercase leading-tight text-white shadow-md transition duration-150 ease-in-out hover:bg-rojoinstitucional10 hover:shadow-lg focus:bg-rojoinstitucional focus:shadow-lg focus:outline-none focus:ring-0 active:bg-rojoinstitucional active:shadow-lg"
                       type="button"
                       id="button-addon1"
                       data-te-ripple-init
@@ -490,12 +491,12 @@ const CamaraPage = ({ camera, picture, video }) => {
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        class="h-5 w-5"
+                        className="h-5 w-5"
                       >
                         <path
-                          fill-rule="evenodd"
+                          fillRule="evenodd"
                           d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                          clip-rule="evenodd"
+                          clipRule="evenodd"
                         />
                       </svg>
                     </button>
@@ -573,6 +574,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                                   </tbody>
                                 </table>
                               </div>
+                              <div className="flex justify-end mt-4">{pageVideo}</div>
                               <div className="flex justify-end mt-4">
                                 <button
                                   onClick={() => setCurrentVideoPage(prevVideoPage)}
@@ -652,6 +654,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                                   </tbody>
                                 </table>
                               </div>
+                              <div className="flex justify-end mt-4">{page}</div>
                               <div className="flex justify-end mt-4">
                                 <button
                                   onClick={() => setCurrentPage(prevPage)}

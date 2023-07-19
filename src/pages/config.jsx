@@ -36,19 +36,17 @@ const ConfigPage = () => {
               <h2 className="text-2xl mb-6">Acceso Remoto</h2>
               <div className="mx-auto mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex justify-center">
-                  <button className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp">
-                    Cámara 360 Finca La Cocosa
-                  </button>
+                  <a className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" href='/rdp/cocosa.rdp' download>Cámara 360 Finca La Cocosa</a>
                 </div>
                 <div className="flex justify-center">
-                  <button className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp">
+                  <a className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" href='/rdp/tamurejo.rdp' download>
                     Cámara 360 Finca Tamurejo
-                  </button>
+                  </a>
                 </div>
                 <div className="flex justify-center">
-                  <button className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp">
+                  <a className="rounded-md bg-rojoinstitucional px-2 py-1 text-sm font-medium text-white transition duration-300 ease-in-out hover:bg-opacity-80 hover:shadow-signUp" href='/rdp/cocosa_telescopio.rdp' download>
                     Cámara Deep Sky Telescopio
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

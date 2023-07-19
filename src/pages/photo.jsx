@@ -39,8 +39,7 @@ export async function getServerSideProps(context) {
 
 async function getData(token, id) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
-    + `/v1/api/picture/${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/picture/${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -64,7 +63,7 @@ async function getData(token, id) {
 }
 
 const FotoPage = ({picture}) => {
-  const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL 
+  const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}`
   const searchParams = useSearchParams();
 
   const camera = {

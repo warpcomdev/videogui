@@ -36,7 +36,7 @@ export async function getServerSideProps(context) {
 
 async function getData(token) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/alert";
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/alert`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -77,7 +77,7 @@ const AlertPage = (alerts) => {
   const totalPages = Math.ceil(totalAlerts.length / itemsPerPage); // Calcular el número total de páginas
 
   const handleAcknowledge = (id) => {
-    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/alert/${encodeURIComponent(id)}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/alert/${encodeURIComponent(id)}`;
     console.log('URLDATA', urlData);
     fetch(urlData, {
       method: 'PUT',
@@ -99,7 +99,7 @@ const AlertPage = (alerts) => {
   };
 
   const handleResolve = (id) => {
-    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/alert/${encodeURIComponent(id)}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/alert/${encodeURIComponent(id)}`;
     fetch(urlData, {
       method: 'PUT',
       headers: {

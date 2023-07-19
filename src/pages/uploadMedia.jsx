@@ -92,7 +92,7 @@ const UploadMediaPage = () => {
           if ( file.type.includes('image')){
             typeFile = 'picture'
           }
-          const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/" + typeFile;
+          const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/${typeFile}`;
           const res = await fetchJson(urlData, {
             method: 'POST',
             headers: {
@@ -108,7 +108,7 @@ const UploadMediaPage = () => {
             console.log('res ok');
             const fileData = new FormData();
             fileData.append('file', file, file.name);
-            const fileRes = await fetch(`${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/${typeFile}/${data.id}`, {
+            const fileRes = await fetch(`${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/${typeFile}/${data.id}`, {
               method: 'POST',
               headers: { 
                 'Accept': 'application/json',

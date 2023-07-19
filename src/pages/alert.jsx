@@ -197,6 +197,7 @@ const AlertPage = (alerts) => {
                   </tbody>
                 </table>
               </div>
+              <div className="flex justify-end mt-4">{currentPage}</div>
               <div className="flex justify-end mt-4">
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}

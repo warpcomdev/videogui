@@ -28,6 +28,7 @@ const ListPhotosPage = () => {
   const [nextPage, setNextPage] = useState('');
   const [prevPage, setPrevPage] = useState('');
   const [pictures, setPictures] = useState([]);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetchPictures();
@@ -49,6 +50,14 @@ const ListPhotosPage = () => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
+
+      const parametros = currentPage.split("&");
+      const obj = {};
+      parametros.forEach((parametro) => {
+        const [clave, valor] = parametro.split("=");
+        obj[clave] = valor;
+      });
+      setPage(Math.floor(obj['offset'] / 10) + 1)
       setPictures(res.data);
       setNextPage(res.next);
       setPrevPage(res.prev);
@@ -160,6 +169,7 @@ const ListPhotosPage = () => {
                   </tbody>
                 </table>
               </div>
+              <div className="flex justify-end mt-4">{page}</div>
               <div className="flex justify-end mt-4">
                 <button
                   onClick={() => setCurrentPage(prevPage)}

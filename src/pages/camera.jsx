@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
 import "../styles/Camara.module.css";
+import { set } from "react-hook-form";
 
 export async function getServerSideProps(context) {
   const { id } = context.query;
@@ -209,6 +210,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   const [nextVideoPage, setNextVideoPage] = useState('');
   const [prevVideoPage, setPrevVideoPage] = useState('');
   const [videos, setVideos] = useState([]);
+  const [pageVideo, setPageVideo] = useState(1);
 
   useEffect(() => {
     fetchVideos();
@@ -217,7 +219,6 @@ const CamaraPage = ({ camera, picture, video }) => {
 
   const fetchVideos = async () => {
     try {
-      console.log('CAMERa', camera.id);
       const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video?q-camera-eq=${camera.id}&${currentVideoPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
@@ -231,7 +232,14 @@ const CamaraPage = ({ camera, picture, video }) => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
-      console.log('RES', res);
+
+      const parametros = currentVideoPage.split("&");
+      const obj = {};
+      parametros.forEach((parametro) => {
+        const [clave, valor] = parametro.split("=");
+        obj[clave] = valor;
+      });
+      setPageVideo(Math.floor(obj['offset'] / 10) + 1)
       setVideos(res.data);
       setNextVideoPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
       setPrevVideoPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
@@ -248,6 +256,7 @@ const CamaraPage = ({ camera, picture, video }) => {
   const [nextPage, setNextPage] = useState('');
   const [prevPage, setPrevPage] = useState('');
   const [pictures, setPictures] = useState([]);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     console.log('CURRENT PICTURE PAGE', currentPage);
@@ -270,6 +279,14 @@ const CamaraPage = ({ camera, picture, video }) => {
       if (!res || res.error) {
         throw new Error("Ocurrió un error al extraer los datos");
       }
+
+      const parametros = currentPage.split("&");
+      const obj = {};
+      parametros.forEach((parametro) => {
+        const [clave, valor] = parametro.split("=");
+        obj[clave] = valor;
+      });
+      setPage(Math.floor(obj['offset'] / 10) + 1)
       setPictures(res.data);
       setNextPage(res.next.replace(`&q-camera-eq=${camera.id}`, ""));
       setPrevPage(res.prev.replace(`&q-camera-eq=${camera.id}`, ""));
@@ -563,6 +580,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                                   </tbody>
                                 </table>
                               </div>
+                              <div className="flex justify-end mt-4">{pageVideo}</div>
                               <div className="flex justify-end mt-4">
                                 <button
                                   onClick={() => setCurrentVideoPage(prevVideoPage)}
@@ -642,6 +660,7 @@ const CamaraPage = ({ camera, picture, video }) => {
                                   </tbody>
                                 </table>
                               </div>
+                              <div className="flex justify-end mt-4">{page}</div>
                               <div className="flex justify-end mt-4">
                                 <button
                                   onClick={() => setCurrentPage(prevPage)}

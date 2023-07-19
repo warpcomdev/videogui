@@ -54,7 +54,7 @@ export async function getServerSideProps(context) {
 async function getData(token, id) {
   try {
     console.log('ID', id);
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + `/v1/api/camera/${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/camera/${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -81,8 +81,7 @@ async function getData(token, id) {
 
 async function getPictureData(token, id) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
-      + `/v1/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/picture?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {
@@ -109,8 +108,7 @@ async function getPictureData(token, id) {
 
 async function getVideoData(token, id) {
   try {
-    const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL
-      + `/v1/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
+    const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video?sort=timestamp&ascending=false&limit=1&q:camera:eq=${id}`;
     const res = await fetchJson(urlData, {
       method: "GET",
       headers: {

@@ -37,7 +37,7 @@ const ListPhotosPage = () => {
 
   const fetchVideos = async () => {
     try {
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video?${currentPage}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video?${currentPage}`;
       const res = await fetchJson(urlData, {
         method: "GET",
         headers: {
@@ -82,7 +82,7 @@ const ListPhotosPage = () => {
       });
     const tagsArray = newTags[0].split(',').map(tag => tag.trim());
     try {
-      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/video/${id}`;
+      const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/video/${id}`;
       const res = await fetch(urlData, {
         method: "PUT",
         headers: {

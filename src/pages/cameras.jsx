@@ -39,7 +39,7 @@ export async function getServerSideProps(context) {
  */
 async function getData(token) {
     try {
-        const urlData = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/camera";
+        const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/camera`;
         const res = await fetchJson(urlData, {
             method: "GET",
             headers: {
@@ -93,7 +93,7 @@ const ListCameraPage = ({ cameras }) => {
     const newLocalPath = editableValues.find(ev => ev.id === id).value;
     
     try {
-        const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL}/v1/api/camera/${id}`;
+        const urlData = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/camera/${id}`;
         const res = await fetch(urlData, {
             method: "PUT",
             headers: {

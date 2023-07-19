@@ -36,7 +36,7 @@ const options: NextAuthOptions = {
         password: {  label: "Password", type: "password" }
       },
       async authorize(credentials: Credentials) {
-        const urlLogin = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/login";
+        const urlLogin = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/login`;
         const res = await fetch(`${urlLogin}`, {
           method: 'POST',
           body: JSON.stringify(credentials),
@@ -45,7 +45,7 @@ const options: NextAuthOptions = {
         
         const user: User = await res.json()
 
-        const urlCameras = process.env.NEXT_PUBLIC_VIDEOAPI_URL + "/v1/api/camera";
+        const urlCameras = `${process.env.NEXT_PUBLIC_VIDEOAPI_URL ? process.env.NEXT_PUBLIC_VIDEOAPI_URL : ""}/v1/api/camera`;
         if (res.ok && user) {
           const cameraRes = await fetch(`${urlCameras}`, {
             method: 'GET',

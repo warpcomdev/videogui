@@ -10,82 +10,18 @@ const Footer = () => {
       >
         <div className="container">
           {/* logos intitucionales ---> */}
-          <div className="-mx-4 flex flex-wrap mb-10">
-            <div className="w-full px-4 md:w-1/2 lg:w-4/12 xl:w-5/12">
-              {/* Logo gobierno España ---> */}
-              <div className="mb-12 max-w-[360px] lg:mb-16">
-                {/* Logo gobierno España ---> */}
+          <div className="-mx-4 flex flex-wrap mb-10 items-center justify-center">
+            <div className="w-full px-4 max-w-5xl">
+              <div className="mb-12 lg:mb-16">
                 <Image
-                  src="/images/logo/ministerio3.svg"
+                  src="/images/logo/logos.png"
                   alt="logo"
                   className="w-full"
-                  width={120}
-                  height={31}
+                  width={1400}
+                  height={180}
                 />
               </div>
             </div>
-            {/* Logo gobierno España End---> */}
-
-            {/* logo Red.Es  -->*/}
-            <div className="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-2/12 xl:w-2/12">
-              <div className="mb-12 lg:mb-16">
-                {/* logo Red.Es -->*/}
-                <Image
-                  src="/images/logo/red_es.svg"
-                  alt="logo"
-                  width={100}
-                  height={20}
-                  className="dark:hidden"
-                />
-                <Image
-                  src="/images/logo/red_es_bco.svg"
-                  alt="logo"
-                  width={100}
-                  height={20}
-                  className="hidden dark:block"
-                />
-                {/* logo Red.Es End -->*/}
-              </div>
-            </div>
-            {/* logo Red.Es End -->*/}
-
-            {/* logo Diputación Badajoz --> */}
-            <div className="w-full px-4 sm:w-1/2 md:w-1/2 lg:w-2/12 xl:w-2/12">
-              <div className="mb-12 lg:mb-16">
-                {/* logo Diputación Badajoz --> */}
-                <Image
-                  src="/images/logo/escudo_2016_ancho.svg"
-                  alt="logo"
-                  width={150}
-                  height={30}
-                  className="dark:hidden"
-                  priority
-                />
-                <Image
-                  src="/images/logo/escudo_2016_anch_Bco.svg"
-                  alt="logo"
-                  width={150}
-                  height={30}
-                  className="hidden dark:block"
-                  priority
-                />
-              </div>
-            </div>
-            {/* logo Diputación Badajoz End ----> */}
-
-            {/* logo Unión Europea ----> */}
-            <div className="w-full px-4 md:w-1/2 lg:w-4/12 xl:w-3/12">
-              <div className="mb-12 lg:mb-16">
-                {/* logo Unión Europea */}
-                <Image
-                  src="/images/logo/ue-union-europea.svg"
-                  alt="logo"
-                  width={100}
-                  height={20}
-                />
-              </div>
-            </div>
-            {/* logo Unión Europea End ----> */}
           </div>
           {/* logos intitucionales End---> */}
         </div>

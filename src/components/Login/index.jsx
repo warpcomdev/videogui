@@ -160,7 +160,7 @@ const Signin = () => {
                 </p>
 
                 {/* logos intitucionales */}
-                <div
+                {/* <div
                   className="mx-auto
                   mt-10
                   grid
@@ -171,58 +171,14 @@ const Signin = () => {
                   sm:gap-x-1 lg:mx-0 lg:max-w-none
                   lg:grid-cols-7"
                 >
-                  {/* logo ministerio inline-flex imagenInline*/}
                   <Image
-                    src="/images/logo/ministerio3.svg"
+                    src="/images/logo/logos.png"
                     alt="logo"
-                    width={120}
-                    height={10}
-                    className="col-span-3"
+                    width="380"
+                    height="50"
+                    className="col-span-7"
                   />
-
-                  {/* logo Red.Es */}
-                  <Image
-                    src="/images/logo/red_es.svg"
-                    alt="logo"
-                    width={70}
-                    height={10}
-                    className="dark:hidden"
-                  />
-                  <Image
-                    src="/images/logo/red_es_bco.svg"
-                    alt="logo"
-                    width={70}
-                    height={10}
-                    className="hidden dark:block"
-                  />
-
-                  {/* logo Diputación Badajoz */}
-                  <Image
-                    src="/images/logo/escudo_2016_ancho.svg"
-                    alt="logo"
-                    width={100}
-                    height={10}
-                    className="col-span-2 dark:hidden"
-                    priority
-                  />
-                  <Image
-                    src="/images/logo/escudo_2016_anch_Bco.svg"
-                    alt="logo"
-                    width={100}
-                    height={10}
-                    className="col-span-2 hidden dark:block"
-                    priority
-                  />
-
-                  {/* logo Unión Europea */}
-                  <Image
-                    src="/images/logo/ue-union-europea.svg"
-                    alt="logo"
-                    width={70}
-                    height={10}
-                    className="imagenInline"
-                  />
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
